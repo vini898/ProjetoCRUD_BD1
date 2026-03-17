@@ -39,9 +39,9 @@ async function abrirNovaVenda() {
   document.getElementById('venda-cliente').value = '';
   document.getElementById('venda-vendedor').value = '';
   await _carregarCaches();
-  _popularSelect('venda-cliente',  _clientesCache,   c => `${c.nome} ${c.tem_desconto ? '★ 10%' : ''}`);
-  _popularSelect('venda-vendedor', _vendedoresCache, v => `${v.nome} — ${v.cargo}`);
-  _popularSelect('item-produto-sel', _produtosCache, p => `${p.nome} (${p.qtd_estoque} un.) — ${fmt(p.preco)}`);
+  _popularSelect('venda-cliente',  _clientesCache,   c => `${c.nome} — ${c.cpf}${c.tem_desconto ? ' ★ 10%' : ''}`);
+  _popularSelect('venda-vendedor', _vendedoresCache, v => `${v.nome} — ${v.cpf} (${v.cargo})`);
+  _popularSelect('item-produto-sel', _produtosCache, p => `[ID-${String(p.id).padStart(3,'0')}] ${p.nome} (${p.qtd_estoque} un.) — ${fmt(p.preco)}`);
   _popularSelect('item-carro-sel',   _carrosCache,   c => `${c.marca} ${c.modelo} ${c.ano} — ${fmt(c.preco)}`);
   atualizarResumoVenda();
   openModal('modal-nova-venda');
@@ -218,8 +218,14 @@ async function carregarVendas(busca='') {
     <tr style="${v.status_pagamento === 'cancelado' ? 'opacity:0.5' : ''}">
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${v.id}</span></td>
       <td>${v.data_venda}</td>
-      <td>${v.cliente_nome}</td>
-      <td>${v.vendedor_nome}</td>
+      <td>
+        <div style="font-weight:500">${v.cliente_nome}</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--gray-400)">${v.cliente_cpf || ''}</div>
+      </td>
+      <td>
+        <div style="font-weight:500">${v.vendedor_nome}</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--gray-400)">${v.vendedor_cpf || ''}</div>
+      </td>
       <td>${pgBadge} ${v.forma_pagamento}</td>
       <td>${stBadge}</td>
       <td style="font-family:var(--font-mono);color:var(--accent);font-weight:500">${fmt(v.total)}</td>
@@ -250,7 +256,11 @@ async function verDetalheVenda(id) {
 
   const itensHtml = v.itens.map(i => `
     <div class="view-row">
-      <span class="view-label"><span class="badge ${i.carro_id ? 'badge-green' : 'badge-blue'}">${i.carro_id ? 'carro' : 'produto'}</span> ${i.descricao}</span>
+      <span class="view-label">
+        <span class="badge ${i.carro_id ? 'badge-green' : 'badge-blue'}">${i.carro_id ? 'carro' : 'produto'}</span>
+        ${i.codigo_produto ? `<span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--accent);margin-left:4px">${i.codigo_produto}</span>` : ''}
+        ${i.descricao}
+      </span>
       <span class="view-val mono">${i.quantidade}× ${fmt(i.preco_unit)} = ${fmt(i.subtotal)}</span>
     </div>`).join('');
 
@@ -260,8 +270,14 @@ async function verDetalheVenda(id) {
         <div class="view-card-name">Venda #${v.id}</div>
         <div class="view-card-id" style="margin-bottom:1rem">${v.data_venda}</div>
         <div class="view-card-rows">
-          <div class="view-row"><span class="view-label">Cliente</span><span class="view-val">${v.cliente_nome}</span></div>
-          <div class="view-row"><span class="view-label">Vendedor</span><span class="view-val">${v.vendedor_nome}</span></div>
+          <div class="view-row"><span class="view-label">Cliente</span><span class="view-val">
+            <div>${v.cliente_nome}</div>
+            <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--gray-400)">${v.cliente_cpf || ''}</div>
+          </span></div>
+          <div class="view-row"><span class="view-label">Vendedor</span><span class="view-val">
+            <div>${v.vendedor_nome}</div>
+            <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--gray-400)">${v.vendedor_cpf || ''}</div>
+          </span></div>
           <div class="view-row"><span class="view-label">Pagamento</span><span class="view-val">${pgIcon} ${v.forma_pagamento}</span></div>
           <div class="view-row"><span class="view-label">Status</span><span class="view-val" style="color:${stColor};font-weight:500">${v.status_pagamento}</span></div>
         </div>

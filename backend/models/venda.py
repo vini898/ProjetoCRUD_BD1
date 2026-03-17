@@ -28,10 +28,11 @@ class ItemVenda(db.Model):
             'preco_unit': self.preco_unit,
             'subtotal':   self.get_subtotal(),
             'descricao':  (
-                f"{self.produto.nome}" if self.produto
+                f"[ID-{str(self.produto_id).zfill(3)}] {self.produto.nome}" if self.produto
                 else f"{self.carro.marca} {self.carro.modelo} {self.carro.ano}" if self.carro
                 else '—'
             ),
+            'codigo_produto': f"ID-{str(self.produto_id).zfill(3)}" if self.produto_id else None,
         }
 
 
@@ -82,8 +83,10 @@ class Venda(db.Model):
             'data_venda':       self.data_venda.isoformat() if self.data_venda else None,
             'cliente_id':       self.cliente_id,
             'cliente_nome':     self.cliente.nome if self.cliente else '—',
+            'cliente_cpf':      self.cliente.cpf  if self.cliente else '—',
             'vendedor_id':      self.vendedor_id,
             'vendedor_nome':    self.vendedor.nome if self.vendedor else '—',
+            'vendedor_cpf':     self.vendedor.cpf  if self.vendedor else '—',
             'forma_pagamento':  self.forma_pagamento,
             'status_pagamento': self.status_pagamento,
             'desconto_aplicado': self.desconto_aplicado,

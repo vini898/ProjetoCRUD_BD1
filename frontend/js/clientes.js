@@ -12,7 +12,10 @@ function ordenarClientes(lista) {
 }
 
 async function carregarClientes(busca='') {
-  const url = busca ? `/clientes/?nome=${encodeURIComponent(busca)}` : '/clientes/';
+  const isCpf = /\d/.test(busca);
+  const url = busca
+    ? (isCpf ? `/clientes/?cpf=${encodeURIComponent(busca)}` : `/clientes/?nome=${encodeURIComponent(busca)}`)
+    : '/clientes/';
   const res = await get(url);
   const tbody = document.getElementById('tb-clientes');
   if (!res.ok || !res.data.length) {

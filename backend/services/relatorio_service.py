@@ -90,6 +90,43 @@ class RelatorioService:
         }
 
     def resumo_geral(self):
+        from models.venda import Venda, ItemVenda
+        vendas = Venda.query.filter(Venda.status_pagamento != 'cancelado').all()
+        receita = round(sum(v.get_total() for v in vendas), 2)
+
+        # Vendas do mês atual
+        mes_atual = date.today().replace(day=1)
+        vendas_mes = [v for v in vendas if v.data_venda >= mes_atual]
+        receita_mes = round(sum(v.get_total() for v in vendas_mes), 2)
+
+        # Produto mais vendido
+        from models.produto import Produto
+        from database import db
+        from sqlalchemy import func
+        top_prod = (
+            db.session.query(Produto.nome, func.sum(ItemVenda.quantidade).label('total'))
+            .join(ItemVenda, ItemVenda.produto_id == Produto.id)
+            .join(Venda, Venda.id == ItemVenda.venda_id)
+            .filter(Venda.status_pagamento != 'cancelado')
+            .group_by(Produto.id)
+            .order_by(func.sum(ItemVenda.quantidade).desc())
+            .first()
+        )
+
+        # Melhor vendedor do mês
+        from models.vendedor import Vendedor
+        top_vend = (
+            db.session.query(Vendedor.nome, func.count(Venda.id).label('total'))
+            .join(Venda, Venda.vendedor_id == Vendedor.id)
+            .filter(Venda.status_pagamento != 'cancelado', Venda.data_venda >= mes_atual)
+            .group_by(Vendedor.id)
+            .order_by(func.count(Venda.id).desc())
+            .first()
+        )
+
+        # Vendas pendentes
+        pendentes = Venda.query.filter_by(status_pagamento='pendente').count()
+
         return {
             'data': self.data_geracao,
             'clientes':  Cliente.query.count(),
@@ -98,4 +135,11 @@ class RelatorioService:
             'vendedores': Vendedor.query.count(),
             'carros_disponiveis': Carro.query.filter_by(status='disponivel').count(),
             'produtos_sem_estoque': sum(1 for p in Produto.query.all() if not p.tem_estoque()),
+            'total_vendas': len(vendas),
+            'receita_total': receita,
+            'vendas_mes': len(vendas_mes),
+            'receita_mes': receita_mes,
+            'produto_top': top_prod[0] if top_prod else '—',
+            'vendedor_top_mes': top_vend[0] if top_vend else '—',
+            'vendas_pendentes': pendentes,
         }

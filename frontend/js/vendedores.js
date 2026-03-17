@@ -11,7 +11,10 @@ function ordenarVendedores(lista) {
 }
 
 async function carregarVendedores(busca='') {
-  const url = busca ? `/vendedores/?nome=${encodeURIComponent(busca)}` : '/vendedores/';
+  const isCpf = /\d/.test(busca);
+  const url = busca
+    ? (isCpf ? `/vendedores/?cpf=${encodeURIComponent(busca)}` : `/vendedores/?nome=${encodeURIComponent(busca)}`)
+    : '/vendedores/';
   const res = await get(url);
   const tbody = document.getElementById('tb-vendedores');
   if (!res.ok || !res.data.length) {
@@ -107,12 +110,23 @@ async function loadDashboard() {
   const res = await get('/relatorio/resumo');
   if (!res.ok) return;
   const d = res.data;
+
+  // Cards de contagem
   document.getElementById('dash-clientes').textContent   = d.clientes;
   document.getElementById('dash-produtos').textContent   = d.produtos;
   document.getElementById('dash-carros').textContent     = d.carros;
   document.getElementById('dash-vendedores').textContent = d.vendedores;
   document.getElementById('dash-disponiveis').textContent  = d.carros_disponiveis;
   document.getElementById('dash-semestoque').textContent   = d.produtos_sem_estoque;
+
+  // Cards de vendas
+  document.getElementById('dash-total-vendas').textContent  = d.total_vendas ?? '—';
+  document.getElementById('dash-receita-total').textContent = d.receita_total != null ? fmt(d.receita_total) : '—';
+  document.getElementById('dash-vendas-mes').textContent    = d.vendas_mes ?? '—';
+  document.getElementById('dash-receita-mes').textContent   = d.receita_mes  != null ? fmt(d.receita_mes)  : '—';
+  document.getElementById('dash-produto-top').textContent   = d.produto_top  ?? '—';
+  document.getElementById('dash-vendedor-top').textContent  = d.vendedor_top_mes ?? '—';
+  document.getElementById('dash-pendentes').textContent     = d.vendas_pendentes ?? '0';
 }
 
 // ═══════════════════════════ RELATÓRIO ═══════════════════════════

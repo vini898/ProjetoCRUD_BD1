@@ -43,6 +43,7 @@ async function carregarProdutos(busca='') {
   tbody.innerHTML = lista.map(p => `
     <tr>
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${p.id}</span></td>
+      <td><span style="font-family:var(--font-mono);font-size:0.75rem;background:var(--gray-700);padding:2px 7px;border-radius:4px;color:var(--accent)">ID-${String(p.id).padStart(3,'0')}</span></td>
       <td>${p.nome}</td>
       <td><span class="badge badge-blue">${p.categoria}</span></td>
       <td style="font-family:var(--font-mono)">${fmt(p.preco)}</td>

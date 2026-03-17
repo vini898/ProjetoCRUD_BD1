@@ -32,7 +32,10 @@
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
       <div class="section-title">Dashboard <span class="accent">/ Resumo</span></div>
-      <div class="dash-grid">
+
+      <!-- Linha 1: Cadastros -->
+      <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.75rem">Cadastros</div>
+      <div class="dash-grid" style="margin-bottom:1.5rem">
         <div class="dash-card" style="--card-accent:var(--blue)">
           <div class="card-label">Clientes</div>
           <div class="card-value" id="dash-clientes">—</div>
@@ -41,7 +44,7 @@
         <div class="dash-card" style="--card-accent:var(--accent)">
           <div class="card-label">Produtos</div>
           <div class="card-value" id="dash-produtos">—</div>
-          <div class="card-sub">no estoque</div>
+          <div class="card-sub"><span id="dash-semestoque" style="color:var(--red)">—</span> sem estoque</div>
         </div>
         <div class="dash-card" style="--card-accent:var(--green)">
           <div class="card-label">Veículos</div>
@@ -54,9 +57,43 @@
           <div class="card-sub">ativos</div>
         </div>
       </div>
-      <div style="color:var(--gray-400);font-size:0.875rem;margin-top:0.5rem">
-        <span style="color:var(--red);font-family:var(--font-mono)" id="dash-semestoque">—</span>
-        produtos sem estoque · Use a barra lateral para navegar.
+
+      <!-- Linha 2: Vendas -->
+      <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.75rem">Vendas</div>
+      <div class="dash-grid" style="margin-bottom:1.5rem">
+        <div class="dash-card" style="--card-accent:var(--green)">
+          <div class="card-label">Total de Vendas</div>
+          <div class="card-value" id="dash-total-vendas">—</div>
+          <div class="card-sub">confirmadas</div>
+        </div>
+        <div class="dash-card" style="--card-accent:var(--accent)">
+          <div class="card-label">Receita Total</div>
+          <div class="card-value" style="font-size:1.6rem" id="dash-receita-total">—</div>
+          <div class="card-sub">acumulada</div>
+        </div>
+        <div class="dash-card" style="--card-accent:var(--blue)">
+          <div class="card-label">Vendas do Mês</div>
+          <div class="card-value" id="dash-vendas-mes">—</div>
+          <div class="card-sub" id="dash-receita-mes" style="font-family:var(--font-mono);color:var(--accent)">—</div>
+        </div>
+        <div class="dash-card" style="--card-accent:var(--gold)">
+          <div class="card-label">Pagamentos Pendentes</div>
+          <div class="card-value" style="color:var(--gold)" id="dash-pendentes">—</div>
+          <div class="card-sub">aguardando confirmação</div>
+        </div>
+      </div>
+
+      <!-- Linha 3: Destaques -->
+      <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.75rem">Destaques do Mês</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="dash-card" style="--card-accent:var(--accent)">
+          <div class="card-label">🏆 Produto Mais Vendido</div>
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--white);margin-top:4px" id="dash-produto-top">—</div>
+        </div>
+        <div class="dash-card" style="--card-accent:var(--green)">
+          <div class="card-label">⭐ Vendedor Destaque do Mês</div>
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--white);margin-top:4px" id="dash-vendedor-top">—</div>
+        </div>
       </div>
     </div>
 
@@ -64,7 +101,7 @@
     <div id="page-clientes" class="page">
       <div class="section-title">Clientes</div>
       <div class="toolbar">
-        <input id="busca-cliente" class="search-box" type="text" placeholder="Pesquisar por nome...">
+        <input id="busca-cliente" class="search-box" type="text" placeholder="Pesquisar por nome ou CPF...">
         <select id="ordem-clientes" class="ordem-select">
           <option value="padrao">Ordenar: Padrão</option>
           <option value="az">A → Z</option>
@@ -110,7 +147,7 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Mari</th><th>Ações</th></tr></thead>
+          <thead><tr><th>#</th><th>Cód.</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Mari</th><th>Ações</th></tr></thead>
           <tbody id="tb-produtos"><tr><td colspan="7"><div class="empty"><p>Carregando...</p></div></td></tr></tbody>
         </table>
       </div>
@@ -153,7 +190,7 @@
     <div id="page-vendedores" class="page">
       <div class="section-title">Vendedores</div>
       <div class="toolbar">
-        <input id="busca-vendedor" class="search-box" type="text" placeholder="Pesquisar por nome...">
+        <input id="busca-vendedor" class="search-box" type="text" placeholder="Pesquisar por nome ou CPF...">
         <select id="ordem-vendedores" class="ordem-select">
           <option value="padrao">Ordenar: Padrão</option>
           <option value="az">A → Z</option>

@@ -55,8 +55,14 @@ def servir_upload(filename):
 # ══════════════════════════════════════════════════════════════ CLIENTES
 @clientes_bp.get('/')
 def listar_clientes():
-    q = request.args.get('nome')
-    itens = mgr_cli.pesquisar_por_nome(q) if q else mgr_cli.listar_todos()
+    q   = request.args.get('nome')
+    cpf = request.args.get('cpf')
+    if cpf:
+        itens = Cliente.query.filter(Cliente.cpf.ilike(f'%{cpf}%')).all()
+    elif q:
+        itens = mgr_cli.pesquisar_por_nome(q)
+    else:
+        itens = mgr_cli.listar_todos()
     return ok([c.to_dict() for c in itens])
 
 @clientes_bp.get('/<int:id>')
@@ -217,8 +223,14 @@ def remover_carro(id):
 # ══════════════════════════════════════════════════════════════ VENDEDORES
 @vendedores_bp.get('/')
 def listar_vendedores():
-    q = request.args.get('nome')
-    itens = mgr_ven.pesquisar_por_nome(q) if q else mgr_ven.listar_todos()
+    q   = request.args.get('nome')
+    cpf = request.args.get('cpf')
+    if cpf:
+        itens = Vendedor.query.filter(Vendedor.cpf.ilike(f'%{cpf}%')).all()
+    elif q:
+        itens = mgr_ven.pesquisar_por_nome(q)
+    else:
+        itens = mgr_ven.listar_todos()
     return ok([v.to_dict() for v in itens])
 
 @vendedores_bp.get('/<int:id>')
