@@ -7,6 +7,7 @@ from database import init_db
 from controllers.routes import (
     clientes_bp, produtos_bp, carros_bp, vendedores_bp, relatorio_bp, uploads_bp
 )
+from controllers.vendas_routes import vendas_bp
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
@@ -19,6 +20,7 @@ app.register_blueprint(carros_bp)
 app.register_blueprint(vendedores_bp)
 app.register_blueprint(relatorio_bp)
 app.register_blueprint(uploads_bp)
+app.register_blueprint(vendas_bp)
 
 @app.route('/')
 def index():

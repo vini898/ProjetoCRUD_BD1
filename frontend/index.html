@@ -22,6 +22,7 @@
     <button class="side-btn" data-page="produtos"   onclick="showPage('produtos');carregarProdutos()"><span class="icon">🔧</span> Produtos</button>
     <button class="side-btn" data-page="carros"     onclick="showPage('carros');carregarCarros()"><span class="icon">🚗</span> Veículos</button>
     <button class="side-btn" data-page="vendedores" onclick="showPage('vendedores');carregarVendedores()"><span class="icon">🧑‍💼</span> Vendedores</button>
+    <button class="side-btn" data-page="vendas" onclick="showPage('vendas');carregarVendas()"><span class="icon">🧾</span> Vendas</button>
     <div class="sidebar-label" style="margin-top:1rem">Relatórios</div>
     <button class="side-btn" data-page="relatorio"  onclick="showPage('relatorio')"><span class="icon">📊</span> Relatório Geral</button>
   </nav>
@@ -207,6 +208,21 @@
       </div>
     </div>
 
+      <!-- VENDAS -->
+    <div id="page-vendas" class="page">
+      <div class="section-title">Vendas <span class="accent">/ Registro</span></div>
+      <div class="toolbar">
+        <input id="busca-venda" class="search-box" type="text" placeholder="Pesquisar por cliente ou vendedor...">
+        <button class="btn btn-primary" onclick="abrirNovaVenda()">+ Nova Venda</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Data</th><th>Cliente</th><th>Vendedor</th><th>Pagamento</th><th>Status</th><th>Total</th><th>Ações</th></tr></thead>
+          <tbody id="tb-vendas"><tr><td colspan="8"><div class="empty"><p>Carregando...</p></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -357,6 +373,64 @@
   </div>
 </div>
 
+<!-- ══ MODAL NOVA VENDA ══ -->
+<div id="modal-nova-venda" class="modal-overlay">
+  <div class="modal modal-venda">
+    <button class="modal-close" onclick="closeModal('modal-nova-venda')">✕</button>
+    <div class="modal-title">NOVA VENDA</div>
+
+    <!-- Cabeçalho da venda -->
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Cliente *</label><select id="venda-cliente" class="form-select"><option value="">Selecione...</option></select></div>
+      <div class="form-group"><label class="form-label">Vendedor *</label><select id="venda-vendedor" class="form-select"><option value="">Selecione...</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Forma de Pagamento *</label><select id="venda-forma" class="form-select"><option value="dinheiro">💵 Dinheiro</option><option value="cartao">💳 Cartão</option><option value="pix">⚡ Pix</option><option value="boleto">📄 Boleto</option><option value="berries">🫐 Berries</option></select></div>
+      <div class="form-group"><label class="form-label">Observação</label><input id="venda-obs" class="form-input" type="text" placeholder="Opcional..."></div>
+    </div>
+
+    <!-- Adicionar itens -->
+    <div style="margin:1rem 0 0.5rem;font-family:var(--font-mono);font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-400)">Adicionar Itens</div>
+    <input type="hidden" id="item-tipo-atual" value="produto">
+    <div style="display:flex;gap:6px;margin-bottom:0.75rem">
+      <button id="item-tipo-produto" class="btn btn-sm active" onclick="trocarTipoItem('produto')">🔧 Produto</button>
+      <button id="item-tipo-carro"   class="btn btn-sm"        onclick="trocarTipoItem('carro')">🚗 Veículo</button>
+    </div>
+    <div id="row-item-produto" style="display:flex;gap:0.5rem;align-items:flex-end;margin-bottom:0.5rem">
+      <div class="form-group" style="flex:1;margin:0"><select id="item-produto-sel" class="form-select"><option value="">Selecione produto...</option></select></div>
+      <div id="row-item-qtd" style="display:flex;gap:0.5rem;align-items:flex-end">
+        <div class="form-group" style="width:80px;margin:0"><input id="item-qtd" class="form-input" type="number" min="1" value="1" placeholder="Qtd"></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="adicionarItem()" style="margin-bottom:0">+ Add</button>
+    </div>
+    <div id="row-item-carro" style="display:none;gap:0.5rem;align-items:flex-end;margin-bottom:0.5rem">
+      <div class="form-group" style="flex:1;margin:0"><select id="item-carro-sel" class="form-select"><option value="">Selecione veículo...</option></select></div>
+      <button class="btn btn-primary btn-sm" onclick="adicionarItem()" style="margin-bottom:0">+ Add</button>
+    </div>
+
+    <!-- Tabela de itens -->
+    <div class="table-wrap" style="margin:0.75rem 0">
+      <table>
+        <thead><tr><th>Tipo</th><th>Item</th><th>Qtd</th><th>Preço unit.</th><th>Subtotal</th><th></th></tr></thead>
+        <tbody id="tb-itens-venda"></tbody>
+      </table>
+    </div>
+
+    <!-- Resumo financeiro -->
+    <div class="venda-resumo">
+      <div id="aviso-desconto" class="venda-desconto-aviso" style="display:none">★ Cliente com desconto de 10%</div>
+      <div class="venda-resumo-row"><span>Subtotal</span><span id="resumo-subtotal">R$ 0,00</span></div>
+      <div class="venda-resumo-row" id="resumo-desconto-row"><span>Desconto</span><span id="resumo-desconto">—</span></div>
+      <div class="venda-resumo-row venda-resumo-total"><span>Total</span><span id="resumo-total">R$ 0,00</span></div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-nova-venda')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-finalizar-venda" onclick="finalizarVenda()">✓ Finalizar Venda</button>
+    </div>
+  </div>
+</div>
+
 <div id="toasts" class="toast-container"></div>
 
 <script src="js/api.js"></script>
@@ -364,6 +438,7 @@
 <script src="js/produtos.js"></script>
 <script src="js/carros.js"></script>
 <script src="js/vendedores.js"></script>
+<script src="js/vendas.js"></script>
 <script>loadDashboard();</script>
 </body>
 </html>

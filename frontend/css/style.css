@@ -234,3 +234,57 @@ tbody td { padding: 11px 14px; font-size: 0.9rem; color: var(--gray-200); }
 .ordem-select:hover  { border-color: var(--gray-400); color: var(--white); }
 .ordem-select:focus  { border-color: var(--accent); }
 .ordem-select option { background: var(--gray-800); }
+
+/* ── MODAL DE VENDA ── */
+.modal-venda { max-width: 680px; }
+
+/* Botões de tipo de item (produto/carro) */
+#item-tipo-produto, #item-tipo-carro {
+  background: var(--gray-700);
+  color: var(--gray-400);
+  border: 1px solid var(--gray-600);
+}
+#item-tipo-produto.active, #item-tipo-carro.active {
+  background: var(--gray-600);
+  color: var(--white);
+  border-color: var(--accent);
+}
+
+/* Resumo financeiro */
+.venda-resumo {
+  background: var(--gray-900);
+  border: 1px solid var(--gray-700);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin: 0.5rem 0;
+}
+.venda-resumo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 0.9rem;
+  color: var(--gray-200);
+  border-bottom: 1px solid var(--gray-700);
+}
+.venda-resumo-row:last-child { border-bottom: none; }
+.venda-resumo-total {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--white);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+.venda-resumo-total span:last-child { color: var(--accent); }
+.venda-desconto-aviso {
+  background: rgba(44,182,125,0.12);
+  color: var(--green);
+  border: 1px solid rgba(44,182,125,0.3);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+  font-family: var(--font-mono);
+}
