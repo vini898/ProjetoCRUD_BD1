@@ -1,12 +1,10 @@
 // ═══════════════════════════ VENDEDORES ═══════════════════════════
-
 async function carregarVendedores(busca='') {
   const url = busca ? `/vendedores/?nome=${encodeURIComponent(busca)}` : '/vendedores/';
   const res = await get(url);
   const tbody = document.getElementById('tb-vendedores');
   if (!res.ok || !res.data.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty">
-      <div class="empty-icon">🧑‍💼</div><p>Nenhum vendedor encontrado.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🧑‍💼</div><p>Nenhum vendedor encontrado.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = res.data.map(v => `
@@ -18,7 +16,7 @@ async function carregarVendedores(busca='') {
       <td><span class="badge badge-blue">${v.cargo}</span></td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm" style="background:var(--gray-700);color:var(--gray-200);border:1px solid var(--gray-600)" onclick="visualizarVendedor(${v.id})">Visualizar</button>
+          <button class="btn btn-sm btn-visualizar" onclick="visualizarVendedor(${v.id})">👁 Ver</button>
           <button class="btn btn-edit btn-sm" onclick="editarVendedor(${v.id})">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="removerVendedor(${v.id},'${v.nome.replace(/'/g,"\\'")}')">Remover</button>
         </div>
@@ -58,15 +56,11 @@ async function salvarVendedor() {
   if (!fd.get('nome') || !fd.get('cpf')) { toast('Nome e CPF são obrigatórios.','error'); return; }
   const imgFile = document.getElementById('ven-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
-
   const res = id ? await put(`/vendedores/${id}`, fd) : await post('/vendedores/', fd);
   if (res.ok) {
     toast(id ? 'Vendedor atualizado!' : 'Vendedor cadastrado!', 'success');
-    closeModal('modal-vendedor');
-    carregarVendedores();
-  } else {
-    toast('Erro: ' + res.error, 'error');
-  }
+    closeModal('modal-vendedor'); carregarVendedores();
+  } else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarVendedor(id) {
@@ -88,7 +82,7 @@ async function editarVendedor(id) {
 }
 
 async function removerVendedor(id, nome) {
-  if (!confirmar(`Remover o vendedor "${nome}"?`)) return;
+  if (!await confirmar(`Remover o vendedor "${nome}"?`)) return;
   const res = await del(`/vendedores/${id}`);
   if (res.ok) { toast('Vendedor removido.','success'); carregarVendedores(); }
   else toast('Erro: ' + res.error, 'error');
@@ -121,14 +115,16 @@ async function loadRelatorio() {
     document.getElementById('rel-cli-total').textContent       = d.total_cadastrados;
     document.getElementById('rel-cli-desconto').textContent    = d.com_desconto;
     document.getElementById('rel-cli-semdesconto').textContent = d.sem_desconto;
+    document.getElementById('rel-cli-cidade-top').textContent  = d.cidade_com_mais_clientes || '—';
   }
   if (rPro.ok) {
     const d = rPro.data;
-    document.getElementById('rel-pro-total').textContent  = d.total_cadastrados;
-    document.getElementById('rel-pro-valor').textContent  = fmt(d.valor_total_estoque);
-    document.getElementById('rel-pro-semest').textContent = d.sem_estoque;
-    document.getElementById('rel-pro-baixo').textContent  = d.estoque_baixo;
-    document.getElementById('rel-pro-mari').textContent   = d.fabricados_mari;
+    document.getElementById('rel-pro-total').textContent    = d.total_cadastrados;
+    document.getElementById('rel-pro-valor').textContent    = fmt(d.valor_total_estoque);
+    document.getElementById('rel-pro-semest').textContent   = d.sem_estoque;
+    document.getElementById('rel-pro-baixo').textContent    = d.estoque_baixo;
+    document.getElementById('rel-pro-mari').textContent     = d.fabricados_mari;
+    document.getElementById('rel-pro-critico').textContent  = d.produto_estoque_critico || '—';
     const catDiv = document.getElementById('rel-pro-cat');
     catDiv.innerHTML = Object.entries(d.por_categoria)
       .map(([k,v]) => `<div class="rel-row"><span>${k}</span><span class="rel-val">${v}</span></div>`)
@@ -136,11 +132,12 @@ async function loadRelatorio() {
   }
   if (rCar.ok) {
     const d = rCar.data;
-    document.getElementById('rel-car-total').textContent = d.total_cadastrados;
-    document.getElementById('rel-car-disp').textContent  = d.disponiveis;
-    document.getElementById('rel-car-vend').textContent  = d.vendidos;
-    document.getElementById('rel-car-res').textContent   = d.reservados;
-    document.getElementById('rel-car-valor').textContent = fmt(d.valor_estoque_disponivel);
+    document.getElementById('rel-car-total').textContent    = d.total_cadastrados;
+    document.getElementById('rel-car-disp').textContent     = d.disponiveis;
+    document.getElementById('rel-car-vend').textContent     = d.vendidos;
+    document.getElementById('rel-car-res').textContent      = d.reservados;
+    document.getElementById('rel-car-valor').textContent    = fmt(d.valor_estoque_disponivel);
+    document.getElementById('rel-car-top').textContent      = d.carro_mais_caro || '—';
   }
   if (rVen.ok) {
     const d = rVen.data;

@@ -10,10 +10,9 @@ class Carro(db.Model):
     cor           = db.Column(db.String(40))
     preco         = db.Column(db.Float, nullable=False)
     quilometragem = db.Column(db.Float, default=0.0)
-    status        = db.Column(db.String(20), default='disponivel')  # disponivel | vendido | reservado
+    status        = db.Column(db.String(20), default='disponivel')
     descricao     = db.Column(db.String(255))
-
-    imagem        = db.Column(db.String(255))  # caminho do arquivo
+    imagem        = db.Column(db.String(255))
 
     STATUS_OPCOES = ['disponivel', 'vendido', 'reservado']
 
@@ -32,18 +31,20 @@ class Carro(db.Model):
     def esta_disponivel(self):
         return self.status == 'disponivel'
 
+    def get_faixa_preco(self):
+        if self.preco < 30000:   return 'econômico'
+        if self.preco < 80000:   return 'intermediário'
+        if self.preco < 150000:  return 'premium'
+        return 'luxo'
+
     def to_dict(self):
         return {
-            'id': self.id,
-            'marca': self.marca,
-            'modelo': self.modelo,
-            'ano': self.ano,
-            'cor': self.cor,
-            'preco': self.preco,
-            'quilometragem': self.quilometragem,
-            'status': self.status,
+            'id': self.id, 'marca': self.marca, 'modelo': self.modelo,
+            'ano': self.ano, 'cor': self.cor, 'preco': self.preco,
+            'quilometragem': self.quilometragem, 'status': self.status,
             'descricao': self.descricao,
             'descricao_completa': self.get_descricao_completa(),
+            'faixa_preco': self.get_faixa_preco(),
             'imagem': self.imagem,
         }
 

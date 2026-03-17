@@ -1,40 +1,55 @@
 const API = 'http://localhost:5000/api';
 
+// ── HTTP helpers com tratamento de erro ──────────────────────
 async function get(url) {
-  const r = await fetch(API + url);
-  return r.json();
+  try {
+    const r = await fetch(API + url);
+    return await r.json();
+  } catch (e) {
+    toast('Servidor indisponível. Verifique se o Flask está rodando.', 'error');
+    return { ok: false, error: e.message };
+  }
 }
-
-// Envia FormData (com possível arquivo) ou JSON
 async function post(url, body) {
-  if (body instanceof FormData) {
-    const r = await fetch(API + url, { method: 'POST', body });
-    return r.json();
+  try {
+    const opts = body instanceof FormData
+      ? { method: 'POST', body }
+      : { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) };
+    return await (await fetch(API + url, opts)).json();
+  } catch (e) {
+    toast('Erro de conexão com o servidor.', 'error');
+    return { ok: false, error: e.message };
   }
-  const r = await fetch(API + url, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
-  return r.json();
 }
-
 async function put(url, body) {
-  if (body instanceof FormData) {
-    const r = await fetch(API + url, { method: 'PUT', body });
-    return r.json();
+  try {
+    const opts = body instanceof FormData
+      ? { method: 'PUT', body }
+      : { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) };
+    return await (await fetch(API + url, opts)).json();
+  } catch (e) {
+    toast('Erro de conexão com o servidor.', 'error');
+    return { ok: false, error: e.message };
   }
-  const r = await fetch(API + url, {
-    method: 'PUT',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(body)
-  });
-  return r.json();
 }
-
+async function patch(url, body) {
+  try {
+    const r = await fetch(API + url, {
+      method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    return await r.json();
+  } catch (e) {
+    toast('Erro de conexão com o servidor.', 'error');
+    return { ok: false, error: e.message };
+  }
+}
 async function del(url) {
-  const r = await fetch(API + url, { method: 'DELETE' });
-  return r.json();
+  try {
+    return await (await fetch(API + url, { method: 'DELETE' })).json();
+  } catch (e) {
+    toast('Erro de conexão com o servidor.', 'error');
+    return { ok: false, error: e.message };
+  }
 }
 
 // ── Toast ────────────────────────────────────────────────────
@@ -47,22 +62,31 @@ function toast(msg, type='') {
   setTimeout(() => t.remove(), 3500);
 }
 
-// ── Modal ────────────────────────────────────────────────────
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
+// ── Modal genérico ───────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   document.querySelectorAll(`#${id} input, #${id} select, #${id} textarea`)
     .forEach(el => { if(el.type==='checkbox') el.checked=false; else el.value=''; });
-  // Limpa preview de imagem
   const preview = document.querySelector(`#${id} .img-preview`);
   if (preview) { preview.src=''; preview.style.display='none'; }
   const hidLabel = document.querySelector(`#${id} .img-label-text`);
   if (hidLabel) hidLabel.textContent = 'Escolher imagem...';
-  const hid = document.querySelector(`#${id} [name="id"]`);
+  const hid = document.querySelector(`#${id} [name="id"], #${id} [id$="-id"]`);
   if(hid) hid.value = '';
 }
+
+// ── Modal de confirmação customizado ────────────────────────
+let _confirmResolve = null;
+function confirmar(msg) {
+  return new Promise(resolve => {
+    _confirmResolve = resolve;
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('modal-confirm').classList.add('open');
+  });
+}
+function _confirmOk()    { document.getElementById('modal-confirm').classList.remove('open'); if(_confirmResolve) _confirmResolve(true);  }
+function _confirmCancel(){ document.getElementById('modal-confirm').classList.remove('open'); if(_confirmResolve) _confirmResolve(false); }
 
 // ── Navegação ─────────────────────────────────────────────────
 function showPage(name) {
@@ -78,9 +102,7 @@ function fmt(v) {
   return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function confirmar(msg) { return confirm(msg); }
-
-// ── Preview de imagem nos formulários ─────────────────────────
+// ── Preview de imagem ─────────────────────────────────────────
 function setupImagePreview(inputId, previewId) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -89,15 +111,14 @@ function setupImagePreview(inputId, previewId) {
     const preview = document.getElementById(previewId);
     const label = input.closest('.img-upload-wrap')?.querySelector('.img-label-text');
     if (file && preview) {
-      const url = URL.createObjectURL(file);
-      preview.src = url;
+      preview.src = URL.createObjectURL(file);
       preview.style.display = 'block';
       if (label) label.textContent = file.name;
     }
   });
 }
 
-// ── Modal de visualização (card) ──────────────────────────────
+// ── Card de visualização ──────────────────────────────────────
 function abrirCardVisualizacao(html) {
   document.getElementById('card-view-body').innerHTML = html;
   document.getElementById('modal-card-view').classList.add('open');

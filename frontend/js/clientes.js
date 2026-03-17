@@ -5,8 +5,7 @@ async function carregarClientes(busca='') {
   const res = await get(url);
   const tbody = document.getElementById('tb-clientes');
   if (!res.ok || !res.data.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty">
-      <div class="empty-icon">👤</div><p>Nenhum cliente encontrado.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">👤</div><p>Nenhum cliente encontrado.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = res.data.map(c => `
@@ -16,10 +15,10 @@ async function carregarClientes(busca='') {
       <td style="font-family:var(--font-mono);font-size:0.82rem">${c.cpf}</td>
       <td>${c.telefone || '—'}</td>
       <td>${c.cidade || '—'}</td>
-      <td>${c.tem_desconto ? '<span class="badge badge-green">✓ Desconto</span>' : '<span class="badge badge-gray">Sem desconto</span>'}</td>
+      <td>${c.tem_desconto ? '<span class="badge badge-green">✓ 10%</span>' : '<span class="badge badge-gray">Sem desconto</span>'}</td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm" style="background:var(--gray-700);color:var(--gray-200);border:1px solid var(--gray-600)" onclick="visualizarCliente(${c.id})">Visualizar</button>
+          <button class="btn btn-sm btn-visualizar" onclick="visualizarCliente(${c.id})">👁 Ver</button>
           <button class="btn btn-edit btn-sm" onclick="editarCliente(${c.id})">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="removerCliente(${c.id},'${c.nome.replace(/'/g,"\\'")}')">Remover</button>
         </div>
@@ -50,12 +49,11 @@ async function visualizarCliente(id) {
           <div class="view-row"><span class="view-label">Telefone</span><span class="view-val">${c.telefone || '—'}</span></div>
           <div class="view-row"><span class="view-label">Email</span><span class="view-val">${c.email || '—'}</span></div>
           <div class="view-row"><span class="view-label">Cidade</span><span class="view-val">${c.cidade || '—'}</span></div>
-          <div class="view-row">
-            <span class="view-label">Desconto</span>
-            <span class="view-val">${c.tem_desconto
+          <div class="view-row"><span class="view-label">Desconto</span><span class="view-val">
+            ${c.tem_desconto
               ? `<span class="badge badge-green">✓ 10% — ${descontos.join(', ')}</span>`
-              : '<span class="badge badge-gray">Sem desconto</span>'}</span>
-          </div>
+              : '<span class="badge badge-gray">Sem desconto</span>'}
+          </span></div>
         </div>
       </div>
     </div>`);
@@ -75,27 +73,23 @@ async function salvarCliente() {
   if (!fd.get('nome') || !fd.get('cpf')) { toast('Nome e CPF são obrigatórios.','error'); return; }
   const imgFile = document.getElementById('cli-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
-
   const res = id ? await put(`/clientes/${id}`, fd) : await post('/clientes/', fd);
   if (res.ok) {
     toast(id ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
-    closeModal('modal-cliente');
-    carregarClientes();
-  } else {
-    toast('Erro: ' + res.error, 'error');
-  }
+    closeModal('modal-cliente'); carregarClientes();
+  } else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarCliente(id) {
   const res = await get(`/clientes/${id}`);
   if (!res.ok) { toast('Erro ao carregar cliente.','error'); return; }
   const c = res.data;
-  document.getElementById('cli-id').value       = c.id;
-  document.getElementById('cli-nome').value     = c.nome;
-  document.getElementById('cli-cpf').value      = c.cpf;
-  document.getElementById('cli-telefone').value = c.telefone || '';
-  document.getElementById('cli-email').value    = c.email || '';
-  document.getElementById('cli-cidade').value   = c.cidade || '';
+  document.getElementById('cli-id').value          = c.id;
+  document.getElementById('cli-nome').value        = c.nome;
+  document.getElementById('cli-cpf').value         = c.cpf;
+  document.getElementById('cli-telefone').value    = c.telefone || '';
+  document.getElementById('cli-email').value       = c.email || '';
+  document.getElementById('cli-cidade').value      = c.cidade || '';
   document.getElementById('cli-flamengo').checked  = c.torce_flamengo;
   document.getElementById('cli-onepiece').checked  = c.assiste_one_piece;
   document.getElementById('cli-sousa').checked     = c.de_sousa;
@@ -109,7 +103,7 @@ async function editarCliente(id) {
 }
 
 async function removerCliente(id, nome) {
-  if (!confirmar(`Remover o cliente "${nome}"?`)) return;
+  if (!await confirmar(`Remover o cliente "${nome}"?`)) return;
   const res = await del(`/clientes/${id}`);
   if (res.ok) { toast('Cliente removido.','success'); carregarClientes(); }
   else toast('Erro: ' + res.error, 'error');

@@ -1,14 +1,26 @@
 // ═══════════════════════════ CARROS ═══════════════════════════
-
-// ── Toggle entre grade e tabela ───────────────────────────────
-let carrosViewMode = 'grade'; // 'grade' | 'tabela'
+let carrosViewMode = 'grade';
 
 function toggleCarrosView(mode) {
   carrosViewMode = mode;
   document.getElementById('btn-view-grade').classList.toggle('active', mode === 'grade');
   document.getElementById('btn-view-tabela').classList.toggle('active', mode === 'tabela');
-  document.getElementById('carros-grade').style.display  = mode === 'grade'  ? 'grid' : 'none';
+  document.getElementById('carros-grade').style.display  = mode === 'grade'  ? 'grid'  : 'none';
   document.getElementById('carros-tabela').style.display = mode === 'tabela' ? 'block' : 'none';
+}
+
+function _statusBadge(status) {
+  return { disponivel: '<span class="badge badge-green">Disponível</span>',
+           vendido:    '<span class="badge badge-red">Vendido</span>',
+           reservado:  '<span class="badge badge-gold">Reservado</span>' }[status] || status;
+}
+
+function _statusBtns(c) {
+  const btns = [];
+  if (c.status !== 'disponivel') btns.push(`<button class="btn btn-sm status-btn" style="color:var(--green);border:1px solid var(--green)" onclick="mudarStatusCarro(${c.id},'disponivel')">Disponível</button>`);
+  if (c.status !== 'reservado')  btns.push(`<button class="btn btn-sm status-btn" style="color:var(--gold);border:1px solid var(--gold)" onclick="mudarStatusCarro(${c.id},'reservado')">Reservado</button>`);
+  if (c.status !== 'vendido')    btns.push(`<button class="btn btn-sm status-btn" style="color:var(--red);border:1px solid var(--red)" onclick="mudarStatusCarro(${c.id},'vendido')">Vendido</button>`);
+  return btns.join('');
 }
 
 async function carregarCarros(busca='') {
@@ -16,18 +28,12 @@ async function carregarCarros(busca='') {
   const res = await get(url);
   const carros = (res.ok && res.data.length) ? res.data : [];
 
-  // ── Grade de cards ────────────────────────────────────────
+  // Grade
   const grade = document.getElementById('carros-grade');
   if (!carros.length) {
-    grade.innerHTML = `<div class="empty" style="grid-column:1/-1">
-      <div class="empty-icon">🚗</div><p>Nenhum veículo encontrado.</p></div>`;
+    grade.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🚗</div><p>Nenhum veículo encontrado.</p></div>`;
   } else {
     grade.innerHTML = carros.map(c => {
-      const statusBadge = {
-        disponivel: '<span class="badge badge-green">Disponível</span>',
-        vendido:    '<span class="badge badge-red">Vendido</span>',
-        reservado:  '<span class="badge badge-gold">Reservado</span>',
-      }[c.status] || c.status;
       const imgHtml = c.imagem
         ? `<div class="car-card-img" style="background-image:url('${c.imagem}')"></div>`
         : `<div class="car-card-img car-card-img--empty"><span>🚗</span></div>`;
@@ -36,10 +42,11 @@ async function carregarCarros(busca='') {
         ${imgHtml}
         <div class="car-card-body">
           <div class="car-card-title">${c.marca} ${c.modelo}</div>
-          <div class="car-card-sub">${c.ano} · ${c.cor || '—'}</div>
+          <div class="car-card-sub">${c.ano} · ${c.cor || '—'} · <span class="badge badge-gray" style="font-size:0.65rem">${c.faixa_preco || ''}</span></div>
           <div class="car-card-price">${fmt(c.preco)}</div>
-          <div style="margin:6px 0">${statusBadge}</div>
-          <div class="td-actions" style="margin-top:8px">
+          <div style="margin:6px 0">${_statusBadge(c.status)}</div>
+          <div class="td-actions" style="margin-top:4px;flex-wrap:wrap">${_statusBtns(c)}</div>
+          <div class="td-actions" style="margin-top:6px">
             <button class="btn btn-edit btn-sm" onclick="editarCarro(${c.id})">Editar</button>
             <button class="btn btn-danger btn-sm" onclick="removerCarro(${c.id},'${c.marca} ${c.modelo}')">Remover</button>
           </div>
@@ -48,31 +55,24 @@ async function carregarCarros(busca='') {
     }).join('');
   }
 
-  // ── Tabela ────────────────────────────────────────────────
+  // Tabela
   const tbody = document.getElementById('tb-carros');
   if (!carros.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty">
-      <div class="empty-icon">🚗</div><p>Nenhum veículo encontrado.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🚗</div><p>Nenhum veículo encontrado.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = carros.map(c => {
-    const statusBadge = {
-      disponivel: '<span class="badge badge-green">Disponível</span>',
-      vendido:    '<span class="badge badge-red">Vendido</span>',
-      reservado:  '<span class="badge badge-gold">Reservado</span>',
-    }[c.status] || c.status;
     const thumb = c.imagem
-      ? `<img src="${c.imagem}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;display:block">`
-      : `<div style="width:36px;height:36px;background:var(--gray-700);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1rem">🚗</div>`;
+      ? `<img src="${c.imagem}" style="width:36px;height:36px;object-fit:cover;border-radius:4px">`
+      : `<div style="width:36px;height:36px;background:var(--gray-700);border-radius:4px;display:flex;align-items:center;justify-content:center">🚗</div>`;
     return `
     <tr>
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${c.id}</span></td>
-      <td>${thumb}</td>
-      <td>${c.marca}</td>
-      <td>${c.modelo}</td>
+      <td>${thumb}</td><td>${c.marca}</td><td>${c.modelo}</td>
       <td style="font-family:var(--font-mono)">${c.ano}</td>
       <td style="font-family:var(--font-mono);color:var(--accent)">${fmt(c.preco)}</td>
-      <td>${statusBadge}</td>
+      <td>${_statusBadge(c.status)}</td>
+      <td><div class="td-actions" style="flex-wrap:wrap">${_statusBtns(c)}</div></td>
       <td>
         <div class="td-actions">
           <button class="btn btn-edit btn-sm" onclick="editarCarro(${c.id})">Editar</button>
@@ -83,18 +83,24 @@ async function carregarCarros(busca='') {
   }).join('');
 }
 
+async function mudarStatusCarro(id, novoStatus) {
+  const res = await patch(`/carros/${id}/status`, { status: novoStatus });
+  if (res.ok) { toast(`Status alterado para "${novoStatus}"!`, 'success'); carregarCarros(); }
+  else toast('Erro: ' + res.error, 'error');
+}
+
 async function salvarCarro() {
   const id = document.getElementById('car-id').value;
   const fd = new FormData();
   const campos = {
-    marca:         document.getElementById('car-marca').value.trim(),
-    modelo:        document.getElementById('car-modelo').value.trim(),
-    ano:           document.getElementById('car-ano').value,
-    cor:           document.getElementById('car-cor').value.trim(),
-    preco:         document.getElementById('car-preco').value,
+    marca: document.getElementById('car-marca').value.trim(),
+    modelo: document.getElementById('car-modelo').value.trim(),
+    ano: document.getElementById('car-ano').value,
+    cor: document.getElementById('car-cor').value.trim(),
+    preco: document.getElementById('car-preco').value,
     quilometragem: document.getElementById('car-km').value || '0',
-    status:        document.getElementById('car-status').value,
-    descricao:     document.getElementById('car-descricao').value.trim(),
+    status: document.getElementById('car-status').value,
+    descricao: document.getElementById('car-descricao').value.trim(),
   };
   if (!campos.marca || !campos.modelo || !campos.preco) {
     toast('Marca, modelo e preço são obrigatórios.', 'error'); return;
@@ -102,15 +108,11 @@ async function salvarCarro() {
   Object.entries(campos).forEach(([k,v]) => fd.append(k, v));
   const imgFile = document.getElementById('car-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
-
   const res = id ? await put(`/carros/${id}`, fd) : await post('/carros/', fd);
   if (res.ok) {
     toast(id ? 'Veículo atualizado!' : 'Veículo cadastrado!', 'success');
-    closeModal('modal-carro');
-    carregarCarros();
-  } else {
-    toast('Erro: ' + res.error, 'error');
-  }
+    closeModal('modal-carro'); carregarCarros();
+  } else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarCarro(id) {
@@ -136,7 +138,7 @@ async function editarCarro(id) {
 }
 
 async function removerCarro(id, nome) {
-  if (!confirmar(`Remover o veículo "${nome}"?`)) return;
+  if (!await confirmar(`Remover o veículo "${nome}"?`)) return;
   const res = await del(`/carros/${id}`);
   if (res.ok) { toast('Veículo removido.','success'); carregarCarros(); }
   else toast('Erro: ' + res.error, 'error');

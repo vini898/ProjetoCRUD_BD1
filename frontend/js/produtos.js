@@ -1,17 +1,29 @@
 // ═══════════════════════════ PRODUTOS ═══════════════════════════
-
 const CATEGORIAS = [
   'Som e Multimídia','Rodas e Pneus','Suspensão','Alarme e Segurança',
   'Estética e Pintura','Iluminação','Motor e Performance','Acessórios Internos','Outros'
 ];
 
 async function carregarProdutos(busca='') {
-  const url = busca ? `/produtos/?nome=${encodeURIComponent(busca)}` : '/produtos/';
+  const nome      = busca || document.getElementById('busca-produto').value;
+  const cat       = document.getElementById('filtro-categoria').value;
+  const mari      = document.getElementById('filtro-mari').checked;
+  const baixo     = document.getElementById('filtro-baixo').checked;
+  const precoMin  = document.getElementById('filtro-preco-min').value;
+  const precoMax  = document.getElementById('filtro-preco-max').value;
+
+  let url = '/produtos/?';
+  if (nome)     url += `nome=${encodeURIComponent(nome)}&`;
+  if (cat)      url += `categoria=${encodeURIComponent(cat)}&`;
+  if (mari)     url += `fabricado_mari=true&`;
+  if (baixo)    url += `estoque_baixo=true&`;
+  if (precoMin) url += `preco_min=${precoMin}&`;
+  if (precoMax) url += `preco_max=${precoMax}&`;
+
   const res = await get(url);
   const tbody = document.getElementById('tb-produtos');
   if (!res.ok || !res.data.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty">
-      <div class="empty-icon">🔧</div><p>Nenhum produto encontrado.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔧</div><p>Nenhum produto encontrado.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = res.data.map(p => `
@@ -20,15 +32,11 @@ async function carregarProdutos(busca='') {
       <td>${p.nome}</td>
       <td><span class="badge badge-blue">${p.categoria}</span></td>
       <td style="font-family:var(--font-mono)">${fmt(p.preco)}</td>
-      <td>
-        <span class="${p.estoque_baixo && p.tem_estoque ? 'badge badge-gold' : p.tem_estoque ? 'badge badge-green' : 'badge badge-red'}">
-          ${p.qtd_estoque} un.
-        </span>
-      </td>
+      <td><span class="${p.estoque_baixo && p.tem_estoque ? 'badge badge-gold' : p.tem_estoque ? 'badge badge-green' : 'badge badge-red'}">${p.qtd_estoque} un.</span></td>
       <td>${p.fabricado_mari ? '<span class="badge badge-gold">✓ Mari</span>' : '—'}</td>
       <td>
         <div class="td-actions">
-          <button class="btn btn-sm" style="background:var(--gray-700);color:var(--gray-200);border:1px solid var(--gray-600)" onclick="visualizarProduto(${p.id})">Visualizar</button>
+          <button class="btn btn-sm btn-visualizar" onclick="visualizarProduto(${p.id})">👁 Ver</button>
           <button class="btn btn-edit btn-sm" onclick="editarProduto(${p.id})">Editar</button>
           <button class="btn btn-danger btn-sm" onclick="removerProduto(${p.id},'${p.nome.replace(/'/g,"\\'")}')">Remover</button>
         </div>
@@ -76,15 +84,11 @@ async function salvarProduto() {
   }
   const imgFile = document.getElementById('pro-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
-
   const res = id ? await put(`/produtos/${id}`, fd) : await post('/produtos/', fd);
   if (res.ok) {
     toast(id ? 'Produto atualizado!' : 'Produto cadastrado!', 'success');
-    closeModal('modal-produto');
-    carregarProdutos();
-  } else {
-    toast('Erro: ' + res.error, 'error');
-  }
+    closeModal('modal-produto'); carregarProdutos();
+  } else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarProduto(id) {
@@ -108,7 +112,7 @@ async function editarProduto(id) {
 }
 
 async function removerProduto(id, nome) {
-  if (!confirmar(`Remover o produto "${nome}"?`)) return;
+  if (!await confirmar(`Remover o produto "${nome}"?`)) return;
   const res = await del(`/produtos/${id}`);
   if (res.ok) { toast('Produto removido.','success'); carregarProdutos(); }
   else toast('Erro: ' + res.error, 'error');
@@ -118,11 +122,22 @@ function preencherCategorias() {
   const sel = document.getElementById('pro-categoria');
   CATEGORIAS.forEach(cat => {
     const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = cat;
-    sel.appendChild(opt);
+    opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
   });
 }
 
-document.getElementById('busca-produto').addEventListener('input', e => carregarProdutos(e.target.value));
+document.getElementById('busca-produto').addEventListener('input', () => carregarProdutos());
+document.getElementById('filtro-categoria').addEventListener('change', () => carregarProdutos());
+document.getElementById('filtro-mari').addEventListener('change', () => carregarProdutos());
+document.getElementById('filtro-baixo').addEventListener('change', () => carregarProdutos());
+document.getElementById('filtro-preco-min').addEventListener('input', () => carregarProdutos());
+document.getElementById('filtro-preco-max').addEventListener('input', () => carregarProdutos());
+
 preencherCategorias();
+// Preenche também o select de filtro
+const selFiltro = document.getElementById('filtro-categoria');
+CATEGORIAS.forEach(cat => {
+  const opt = document.createElement('option');
+  opt.value = cat; opt.textContent = cat; selFiltro.appendChild(opt);
+});
 setupImagePreview('pro-imagem', 'pro-img-preview');
