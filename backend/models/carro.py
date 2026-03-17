@@ -13,6 +13,8 @@ class Carro(db.Model):
     status        = db.Column(db.String(20), default='disponivel')  # disponivel | vendido | reservado
     descricao     = db.Column(db.String(255))
 
+    imagem        = db.Column(db.String(255))  # caminho do arquivo
+
     STATUS_OPCOES = ['disponivel', 'vendido', 'reservado']
 
     def get_descricao_completa(self):
@@ -42,6 +44,7 @@ class Carro(db.Model):
             'status': self.status,
             'descricao': self.descricao,
             'descricao_completa': self.get_descricao_completa(),
+            'imagem': self.imagem,
         }
 
     def __repr__(self):

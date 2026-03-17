@@ -19,28 +19,64 @@ async function carregarClientes(busca='') {
       <td>${c.tem_desconto ? '<span class="badge badge-green">✓ Desconto</span>' : '<span class="badge badge-gray">Sem desconto</span>'}</td>
       <td>
         <div class="td-actions">
+          <button class="btn btn-sm" style="background:var(--gray-700);color:var(--gray-200);border:1px solid var(--gray-600)" onclick="visualizarCliente(${c.id})">Visualizar</button>
           <button class="btn btn-edit btn-sm" onclick="editarCliente(${c.id})">Editar</button>
-          <button class="btn btn-danger btn-sm" onclick="removerCliente(${c.id},'${c.nome}')">Remover</button>
+          <button class="btn btn-danger btn-sm" onclick="removerCliente(${c.id},'${c.nome.replace(/'/g,"\\'")}')">Remover</button>
         </div>
       </td>
     </tr>`).join('');
 }
 
+async function visualizarCliente(id) {
+  const res = await get(`/clientes/${id}`);
+  if (!res.ok) { toast('Erro ao carregar cliente.','error'); return; }
+  const c = res.data;
+  const imgHtml = c.imagem
+    ? `<img src="${c.imagem}" class="card-avatar-round">`
+    : `<div class="card-avatar-round card-avatar-placeholder">👤</div>`;
+  const descontos = [
+    c.torce_flamengo    ? '🔴 Flamengo'    : null,
+    c.assiste_one_piece ? '🏴‍☠️ One Piece' : null,
+    c.de_sousa          ? '📍 De Sousa'    : null,
+  ].filter(Boolean);
+  abrirCardVisualizacao(`
+    <div class="view-card">
+      <div class="view-card-img-area">${imgHtml}</div>
+      <div class="view-card-content">
+        <div class="view-card-name">${c.nome}</div>
+        <div class="view-card-id">Cliente #${c.id}</div>
+        <div class="view-card-rows">
+          <div class="view-row"><span class="view-label">CPF</span><span class="view-val mono">${c.cpf}</span></div>
+          <div class="view-row"><span class="view-label">Telefone</span><span class="view-val">${c.telefone || '—'}</span></div>
+          <div class="view-row"><span class="view-label">Email</span><span class="view-val">${c.email || '—'}</span></div>
+          <div class="view-row"><span class="view-label">Cidade</span><span class="view-val">${c.cidade || '—'}</span></div>
+          <div class="view-row">
+            <span class="view-label">Desconto</span>
+            <span class="view-val">${c.tem_desconto
+              ? `<span class="badge badge-green">✓ 10% — ${descontos.join(', ')}</span>`
+              : '<span class="badge badge-gray">Sem desconto</span>'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`);
+}
+
 async function salvarCliente() {
   const id = document.getElementById('cli-id').value;
-  const dados = {
-    nome:     document.getElementById('cli-nome').value.trim(),
-    cpf:      document.getElementById('cli-cpf').value.trim(),
-    telefone: document.getElementById('cli-telefone').value.trim(),
-    email:    document.getElementById('cli-email').value.trim(),
-    cidade:   document.getElementById('cli-cidade').value.trim(),
-    torce_flamengo:    document.getElementById('cli-flamengo').checked,
-    assiste_one_piece: document.getElementById('cli-onepiece').checked,
-    de_sousa:          document.getElementById('cli-sousa').checked,
-  };
-  if (!dados.nome || !dados.cpf) { toast('Nome e CPF são obrigatórios.','error'); return; }
+  const fd = new FormData();
+  fd.append('nome',              document.getElementById('cli-nome').value.trim());
+  fd.append('cpf',               document.getElementById('cli-cpf').value.trim());
+  fd.append('telefone',          document.getElementById('cli-telefone').value.trim());
+  fd.append('email',             document.getElementById('cli-email').value.trim());
+  fd.append('cidade',            document.getElementById('cli-cidade').value.trim());
+  fd.append('torce_flamengo',    document.getElementById('cli-flamengo').checked);
+  fd.append('assiste_one_piece', document.getElementById('cli-onepiece').checked);
+  fd.append('de_sousa',          document.getElementById('cli-sousa').checked);
+  if (!fd.get('nome') || !fd.get('cpf')) { toast('Nome e CPF são obrigatórios.','error'); return; }
+  const imgFile = document.getElementById('cli-imagem').files[0];
+  if (imgFile) fd.append('imagem', imgFile);
 
-  const res = id ? await put(`/clientes/${id}`, dados) : await post('/clientes/', dados);
+  const res = id ? await put(`/clientes/${id}`, fd) : await post('/clientes/', fd);
   if (res.ok) {
     toast(id ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
     closeModal('modal-cliente');
@@ -63,6 +99,11 @@ async function editarCliente(id) {
   document.getElementById('cli-flamengo').checked  = c.torce_flamengo;
   document.getElementById('cli-onepiece').checked  = c.assiste_one_piece;
   document.getElementById('cli-sousa').checked     = c.de_sousa;
+  if (c.imagem) {
+    const prev = document.getElementById('cli-img-preview');
+    prev.src = c.imagem; prev.style.display = 'block';
+    document.querySelector('#modal-cliente .img-label-text').textContent = 'Trocar imagem...';
+  }
   document.getElementById('modal-cliente-title').textContent = 'EDITAR CLIENTE';
   openModal('modal-cliente');
 }
@@ -74,6 +115,5 @@ async function removerCliente(id, nome) {
   else toast('Erro: ' + res.error, 'error');
 }
 
-document.getElementById('busca-cliente').addEventListener('input', e => {
-  carregarClientes(e.target.value);
-});
+document.getElementById('busca-cliente').addEventListener('input', e => carregarClientes(e.target.value));
+setupImagePreview('cli-imagem', 'cli-img-preview');

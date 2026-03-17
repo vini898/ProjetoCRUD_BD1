@@ -14,6 +14,7 @@ class Cliente(db.Model):
     torce_flamengo     = db.Column(db.Boolean, default=False)
     assiste_one_piece  = db.Column(db.Boolean, default=False)
     de_sousa           = db.Column(db.Boolean, default=False)
+    imagem             = db.Column(db.String(255))
 
     def tem_desconto(self):
         return self.torce_flamengo or self.assiste_one_piece or self.de_sousa
@@ -49,6 +50,7 @@ class Cliente(db.Model):
             'assiste_one_piece': self.assiste_one_piece,
             'de_sousa': self.de_sousa,
             'tem_desconto': self.tem_desconto(),
+            'imagem': self.imagem,
         }
 
     def __repr__(self):

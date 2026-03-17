@@ -8,22 +8,17 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
 <header class="header">
   <div class="logo">⚙ SPEED<span>TECH</span></div>
   <span style="color:var(--gray-400);font-size:0.8rem;font-family:var(--font-mono)">EQUIPADORA DE CARROS</span>
 </header>
 
-<!-- ── LAYOUT ── -->
 <div class="app">
-
-  <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-label">Painel</div>
     <button class="side-btn active" data-page="dashboard" onclick="showPage('dashboard')">
       <span class="icon">◈</span> Dashboard
     </button>
-
     <div class="sidebar-label" style="margin-top:1rem">Cadastros</div>
     <button class="side-btn" data-page="clientes" onclick="showPage('clientes');carregarClientes()">
       <span class="icon">👤</span> Clientes
@@ -37,17 +32,15 @@
     <button class="side-btn" data-page="vendedores" onclick="showPage('vendedores');carregarVendedores()">
       <span class="icon">🧑‍💼</span> Vendedores
     </button>
-
     <div class="sidebar-label" style="margin-top:1rem">Relatórios</div>
     <button class="side-btn" data-page="relatorio" onclick="showPage('relatorio')">
       <span class="icon">📊</span> Relatório Geral
     </button>
   </nav>
 
-  <!-- MAIN -->
   <main class="main">
 
-    <!-- ══════════ DASHBOARD ══════════ -->
+    <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
       <div class="section-title">Dashboard <span class="accent">/ Resumo</span></div>
       <div class="dash-grid">
@@ -78,21 +71,19 @@
       </div>
     </div>
 
-    <!-- ══════════ CLIENTES ══════════ -->
+    <!-- CLIENTES -->
     <div id="page-clientes" class="page">
       <div class="section-title">Clientes</div>
       <div class="toolbar">
         <input id="busca-cliente" class="search-box" type="text" placeholder="Pesquisar por nome...">
-        <button class="btn btn-primary" onclick="document.getElementById('modal-cliente-title').textContent='NOVO CLIENTE';openModal('modal-cliente')">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-cliente-title').textContent='NOVO CLIENTE';closeModal('modal-cliente');openModal('modal-cliente')">
           + Novo Cliente
         </button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>#</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cidade</th><th>Desconto</th><th>Ações</th>
-            </tr>
+            <tr><th>#</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cidade</th><th>Desconto</th><th>Ações</th></tr>
           </thead>
           <tbody id="tb-clientes">
             <tr><td colspan="7"><div class="empty"><p>Carregando...</p></div></td></tr>
@@ -101,21 +92,19 @@
       </div>
     </div>
 
-    <!-- ══════════ PRODUTOS ══════════ -->
+    <!-- PRODUTOS -->
     <div id="page-produtos" class="page">
       <div class="section-title">Produtos <span class="accent">/ Estoque</span></div>
       <div class="toolbar">
         <input id="busca-produto" class="search-box" type="text" placeholder="Pesquisar por nome...">
-        <button class="btn btn-primary" onclick="document.getElementById('modal-produto-title').textContent='NOVO PRODUTO';openModal('modal-produto')">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-produto-title').textContent='NOVO PRODUTO';closeModal('modal-produto');openModal('modal-produto')">
           + Novo Produto
         </button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>#</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Mari</th><th>Ações</th>
-            </tr>
+            <tr><th>#</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Mari</th><th>Ações</th></tr>
           </thead>
           <tbody id="tb-produtos">
             <tr><td colspan="7"><div class="empty"><p>Carregando...</p></div></td></tr>
@@ -124,44 +113,51 @@
       </div>
     </div>
 
-    <!-- ══════════ CARROS ══════════ -->
+    <!-- CARROS -->
     <div id="page-carros" class="page">
       <div class="section-title">Veículos <span class="accent">/ Estoque</span></div>
       <div class="toolbar">
         <input id="busca-carro" class="search-box" type="text" placeholder="Pesquisar por marca ou modelo...">
-        <button class="btn btn-primary" onclick="document.getElementById('modal-carro-title').textContent='NOVO VEÍCULO';openModal('modal-carro')">
+        <div class="view-toggle">
+          <button id="btn-view-grade" class="btn active" onclick="toggleCarrosView('grade')" title="Grade">⊞ Grade</button>
+          <button id="btn-view-tabela" class="btn" onclick="toggleCarrosView('tabela')" title="Tabela">☰ Tabela</button>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('modal-carro-title').textContent='NOVO VEÍCULO';closeModal('modal-carro');openModal('modal-carro')">
           + Novo Veículo
         </button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th><th>Marca</th><th>Modelo</th><th>Ano</th><th>Cor</th><th>Preço</th><th>Status</th><th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tb-carros">
-            <tr><td colspan="8"><div class="empty"><p>Carregando...</p></div></td></tr>
-          </tbody>
-        </table>
+
+      <!-- Grade de cards -->
+      <div id="carros-grade" class="carros-grade"></div>
+
+      <!-- Tabela (oculta por padrão) -->
+      <div id="carros-tabela" style="display:none">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Foto</th><th>Marca</th><th>Modelo</th><th>Ano</th><th>Preço</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="tb-carros">
+              <tr><td colspan="8"><div class="empty"><p>Carregando...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- ══════════ VENDEDORES ══════════ -->
+    <!-- VENDEDORES -->
     <div id="page-vendedores" class="page">
       <div class="section-title">Vendedores</div>
       <div class="toolbar">
         <input id="busca-vendedor" class="search-box" type="text" placeholder="Pesquisar por nome...">
-        <button class="btn btn-primary" onclick="document.getElementById('modal-vendedor-title').textContent='NOVO VENDEDOR';openModal('modal-vendedor')">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-vendedor-title').textContent='NOVO VENDEDOR';closeModal('modal-vendedor');openModal('modal-vendedor')">
           + Novo Vendedor
         </button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th>#</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cargo</th><th>Ações</th>
-            </tr>
+            <tr><th>#</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>Cargo</th><th>Ações</th></tr>
           </thead>
           <tbody id="tb-vendedores">
             <tr><td colspan="6"><div class="empty"><p>Carregando...</p></div></td></tr>
@@ -170,46 +166,37 @@
       </div>
     </div>
 
-    <!-- ══════════ RELATÓRIO ══════════ -->
+    <!-- RELATÓRIO -->
     <div id="page-relatorio" class="page">
       <div class="section-title">Relatório <span class="accent">/ Geral</span></div>
-
       <div class="rel-grid">
-        <!-- Clientes -->
         <div class="rel-card">
           <h3>Clientes</h3>
           <div class="rel-row"><span>Total cadastrados</span><span class="rel-val" id="rel-cli-total">—</span></div>
           <div class="rel-row"><span>Com desconto</span><span class="rel-val" id="rel-cli-desconto">—</span></div>
           <div class="rel-row"><span>Sem desconto</span><span class="rel-val" id="rel-cli-semdesconto">—</span></div>
         </div>
-
-        <!-- Vendedores -->
         <div class="rel-card">
           <h3>Vendedores</h3>
           <div class="rel-row"><span>Total cadastrados</span><span class="rel-val" id="rel-ven-total">—</span></div>
           <div id="rel-ven-cargo"></div>
         </div>
-
-        <!-- Produtos -->
         <div class="rel-card">
           <h3>Produtos / Estoque</h3>
           <div class="rel-row"><span>Total cadastrados</span><span class="rel-val" id="rel-pro-total">—</span></div>
           <div class="rel-row"><span>Valor total estoque</span><span class="rel-val" id="rel-pro-valor">—</span></div>
           <div class="rel-row"><span>Sem estoque</span><span class="rel-val" id="rel-pro-semest">—</span></div>
-          <div class="rel-row"><span>Estoque baixo (&lt;5)</span><span class="rel-val" id="rel-pro-baixo">—</span></div>
+          <div class="rel-row"><span>Estoque baixo</span><span class="rel-val" id="rel-pro-baixo">—</span></div>
           <div class="rel-row"><span>Fabricados em Mari</span><span class="rel-val" id="rel-pro-mari">—</span></div>
-          <div style="margin-top:0.75rem;font-family:var(--font-mono);font-size:0.7rem;color:var(--gray-400);margin-bottom:4px">POR CATEGORIA</div>
-          <div id="rel-pro-cat"></div>
+          <div id="rel-pro-cat" style="margin-top:0.5rem"></div>
         </div>
-
-        <!-- Carros -->
         <div class="rel-card">
           <h3>Veículos</h3>
           <div class="rel-row"><span>Total cadastrados</span><span class="rel-val" id="rel-car-total">—</span></div>
           <div class="rel-row"><span>Disponíveis</span><span class="rel-val" id="rel-car-disp">—</span></div>
           <div class="rel-row"><span>Vendidos</span><span class="rel-val" id="rel-car-vend">—</span></div>
           <div class="rel-row"><span>Reservados</span><span class="rel-val" id="rel-car-res">—</span></div>
-          <div class="rel-row"><span>Valor em estoque</span><span class="rel-val" id="rel-car-valor">—</span></div>
+          <div class="rel-row"><span>Valor disponível</span><span class="rel-val" id="rel-car-valor">—</span></div>
         </div>
       </div>
     </div>
@@ -217,9 +204,7 @@
   </main>
 </div>
 
-<!-- ══════ MODALS ══════ -->
-
-<!-- Modal Cliente -->
+<!-- ══ MODAL CLIENTE ══ -->
 <div id="modal-cliente" class="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
@@ -250,6 +235,17 @@
       <input id="cli-cidade" class="form-input" type="text" placeholder="Ex: João Pessoa">
     </div>
     <div class="form-group">
+      <label class="form-label">Foto do cliente</label>
+      <div class="img-upload-wrap">
+        <label class="img-upload-label">
+          <span class="img-upload-icon">📷</span>
+          <span class="img-label-text">Escolher imagem...</span>
+          <input type="file" id="cli-imagem" accept="image/*">
+        </label>
+        <img id="cli-img-preview" class="img-preview" alt="Preview">
+      </div>
+    </div>
+    <div class="form-group">
       <label class="form-label">Qualificadores de Desconto</label>
       <label class="form-check"><input type="checkbox" id="cli-flamengo"> Torce pro Flamengo</label>
       <label class="form-check"><input type="checkbox" id="cli-onepiece"> Assiste One Piece</label>
@@ -262,7 +258,7 @@
   </div>
 </div>
 
-<!-- Modal Produto -->
+<!-- ══ MODAL PRODUTO ══ -->
 <div id="modal-produto" class="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-produto')">✕</button>
@@ -297,6 +293,17 @@
       <label class="form-label">Descrição</label>
       <input id="pro-descricao" class="form-input" type="text" placeholder="Descrição opcional">
     </div>
+    <div class="form-group">
+      <label class="form-label">Foto do produto</label>
+      <div class="img-upload-wrap">
+        <label class="img-upload-label">
+          <span class="img-upload-icon">📷</span>
+          <span class="img-label-text">Escolher imagem...</span>
+          <input type="file" id="pro-imagem" accept="image/*">
+        </label>
+        <img id="pro-img-preview" class="img-preview" alt="Preview">
+      </div>
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-produto')">Cancelar</button>
       <button class="btn btn-primary" onclick="salvarProduto()">Salvar</button>
@@ -304,7 +311,7 @@
   </div>
 </div>
 
-<!-- Modal Carro -->
+<!-- ══ MODAL CARRO ══ -->
 <div id="modal-carro" class="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-carro')">✕</button>
@@ -352,6 +359,17 @@
       <label class="form-label">Descrição</label>
       <input id="car-descricao" class="form-input" type="text" placeholder="Opcionais, estado, etc.">
     </div>
+    <div class="form-group">
+      <label class="form-label">Foto do veículo</label>
+      <div class="img-upload-wrap">
+        <label class="img-upload-label">
+          <span class="img-upload-icon">📷</span>
+          <span class="img-label-text">Escolher imagem...</span>
+          <input type="file" id="car-imagem" accept="image/*">
+        </label>
+        <img id="car-img-preview" class="img-preview" alt="Preview">
+      </div>
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-carro')">Cancelar</button>
       <button class="btn btn-primary" onclick="salvarCarro()">Salvar</button>
@@ -359,7 +377,7 @@
   </div>
 </div>
 
-<!-- Modal Vendedor -->
+<!-- ══ MODAL VENDEDOR ══ -->
 <div id="modal-vendedor" class="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-vendedor')">✕</button>
@@ -390,6 +408,17 @@
         </select>
       </div>
     </div>
+    <div class="form-group">
+      <label class="form-label">Foto do vendedor</label>
+      <div class="img-upload-wrap">
+        <label class="img-upload-label">
+          <span class="img-upload-icon">📷</span>
+          <span class="img-label-text">Escolher imagem...</span>
+          <input type="file" id="ven-imagem" accept="image/*">
+        </label>
+        <img id="ven-img-preview" class="img-preview" alt="Preview">
+      </div>
+    </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-vendedor')">Cancelar</button>
       <button class="btn btn-primary" onclick="salvarVendedor()">Salvar</button>
@@ -397,19 +426,27 @@
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+<!-- ══ MODAL CARD VISUALIZAÇÃO ══ -->
+<div id="modal-card-view" class="modal-overlay">
+  <div class="modal modal-card-view">
+    <button class="modal-close" onclick="fecharCardVisualizacao()">✕</button>
+    <div id="card-view-body"></div>
+  </div>
+</div>
+
 <div id="toasts" class="toast-container"></div>
 
-<!-- SCRIPTS -->
 <script src="js/api.js"></script>
 <script src="js/clientes.js"></script>
 <script src="js/produtos.js"></script>
 <script src="js/carros.js"></script>
 <script src="js/vendedores.js"></script>
 <script>
-  // Inicia no dashboard
   loadDashboard();
+  // Carrega a grade de carros ao abrir a página
+  document.querySelector('.side-btn[data-page="carros"]').addEventListener('click', () => {
+    setTimeout(() => carregarCarros(), 50);
+  });
 </script>
-
 </body>
 </html>

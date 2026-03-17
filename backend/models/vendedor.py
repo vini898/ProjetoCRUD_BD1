@@ -8,6 +8,7 @@ class Vendedor(db.Model):
     cpf      = db.Column(db.String(14), unique=True, nullable=False)
     telefone = db.Column(db.String(20))
     cargo    = db.Column(db.String(60), default='Vendedor')
+    imagem   = db.Column(db.String(255))
 
     CARGOS = ['Vendedor', 'Gerente', 'Supervisor', 'Estagiário']
 
@@ -30,6 +31,7 @@ class Vendedor(db.Model):
             'cpf': self.cpf,
             'telefone': self.telefone,
             'cargo': self.cargo,
+            'imagem': self.imagem,
         }
 
     def __repr__(self):

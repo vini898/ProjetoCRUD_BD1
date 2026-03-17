@@ -10,6 +10,7 @@ class Produto(db.Model):
     qtd_estoque     = db.Column(db.Integer, nullable=False, default=0)
     fabricado_mari  = db.Column(db.Boolean, default=False)
     descricao       = db.Column(db.String(255))
+    imagem          = db.Column(db.String(255))
 
     CATEGORIAS = [
         'Som e Multimídia', 'Rodas e Pneus', 'Suspensão',
@@ -43,6 +44,7 @@ class Produto(db.Model):
             'valor_total_estoque': self.get_valor_total(),
             'tem_estoque': self.tem_estoque(),
             'estoque_baixo': self.estoque_baixo(),
+            'imagem': self.imagem,
         }
 
     def __repr__(self):
