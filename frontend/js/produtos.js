@@ -3,14 +3,27 @@ const CATEGORIAS = [
   'Som e Multimídia','Rodas e Pneus','Suspensão','Alarme e Segurança',
   'Estética e Pintura','Iluminação','Motor e Performance','Acessórios Internos','Outros'
 ];
+let produtosOrdem = 'padrao';
+
+function ordenarProdutos(lista) {
+  return [...lista].sort((a, b) => {
+    if (produtosOrdem === 'az')        return a.nome.localeCompare(b.nome);
+    if (produtosOrdem === 'za')        return b.nome.localeCompare(a.nome);
+    if (produtosOrdem === 'caro')      return b.preco - a.preco;
+    if (produtosOrdem === 'barato')    return a.preco - b.preco;
+    if (produtosOrdem === 'estoque_maior') return b.qtd_estoque - a.qtd_estoque;
+    if (produtosOrdem === 'estoque_menor') return a.qtd_estoque - b.qtd_estoque;
+    return a.id - b.id;
+  });
+}
 
 async function carregarProdutos(busca='') {
-  const nome      = busca || document.getElementById('busca-produto').value;
-  const cat       = document.getElementById('filtro-categoria').value;
-  const mari      = document.getElementById('filtro-mari').checked;
-  const baixo     = document.getElementById('filtro-baixo').checked;
-  const precoMin  = document.getElementById('filtro-preco-min').value;
-  const precoMax  = document.getElementById('filtro-preco-max').value;
+  const nome     = busca || document.getElementById('busca-produto').value;
+  const cat      = document.getElementById('filtro-categoria').value;
+  const mari     = document.getElementById('filtro-mari').checked;
+  const baixo    = document.getElementById('filtro-baixo').checked;
+  const precoMin = document.getElementById('filtro-preco-min').value;
+  const precoMax = document.getElementById('filtro-preco-max').value;
 
   let url = '/produtos/?';
   if (nome)     url += `nome=${encodeURIComponent(nome)}&`;
@@ -26,7 +39,8 @@ async function carregarProdutos(busca='') {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔧</div><p>Nenhum produto encontrado.</p></div></td></tr>`;
     return;
   }
-  tbody.innerHTML = res.data.map(p => `
+  const lista = ordenarProdutos(res.data);
+  tbody.innerHTML = lista.map(p => `
     <tr>
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${p.id}</span></td>
       <td>${p.nome}</td>
@@ -79,16 +93,12 @@ async function salvarProduto() {
   fd.append('qtd_estoque',    document.getElementById('pro-estoque').value || '0');
   fd.append('fabricado_mari', document.getElementById('pro-mari').checked);
   fd.append('descricao',      document.getElementById('pro-descricao').value.trim());
-  if (!fd.get('nome') || !fd.get('categoria') || !fd.get('preco')) {
-    toast('Nome, categoria e preço são obrigatórios.', 'error'); return;
-  }
+  if (!fd.get('nome') || !fd.get('categoria') || !fd.get('preco')) { toast('Nome, categoria e preço são obrigatórios.', 'error'); return; }
   const imgFile = document.getElementById('pro-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
   const res = id ? await put(`/produtos/${id}`, fd) : await post('/produtos/', fd);
-  if (res.ok) {
-    toast(id ? 'Produto atualizado!' : 'Produto cadastrado!', 'success');
-    closeModal('modal-produto'); carregarProdutos();
-  } else toast('Erro: ' + res.error, 'error');
+  if (res.ok) { toast(id ? 'Produto atualizado!' : 'Produto cadastrado!', 'success'); closeModal('modal-produto'); carregarProdutos(); }
+  else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarProduto(id) {
@@ -119,10 +129,12 @@ async function removerProduto(id, nome) {
 }
 
 function preencherCategorias() {
-  const sel = document.getElementById('pro-categoria');
-  CATEGORIAS.forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+  [document.getElementById('pro-categoria'), document.getElementById('filtro-categoria')].forEach(sel => {
+    if (!sel) return;
+    CATEGORIAS.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat; opt.textContent = cat; sel.appendChild(opt);
+    });
   });
 }
 
@@ -132,12 +144,6 @@ document.getElementById('filtro-mari').addEventListener('change', () => carregar
 document.getElementById('filtro-baixo').addEventListener('change', () => carregarProdutos());
 document.getElementById('filtro-preco-min').addEventListener('input', () => carregarProdutos());
 document.getElementById('filtro-preco-max').addEventListener('input', () => carregarProdutos());
-
+document.getElementById('ordem-produtos').addEventListener('change', e => { produtosOrdem = e.target.value; carregarProdutos(); });
 preencherCategorias();
-// Preenche também o select de filtro
-const selFiltro = document.getElementById('filtro-categoria');
-CATEGORIAS.forEach(cat => {
-  const opt = document.createElement('option');
-  opt.value = cat; opt.textContent = cat; selFiltro.appendChild(opt);
-});
 setupImagePreview('pro-imagem', 'pro-img-preview');

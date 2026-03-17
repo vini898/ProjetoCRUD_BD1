@@ -212,3 +212,25 @@ tbody td { padding: 11px 14px; font-size: 0.9rem; color: var(--gray-200); }
 /* ── BOTÕES DE STATUS (carros) ── */
 .status-btn { background: transparent; transition: all 0.15s ease; }
 .status-btn:hover { opacity: 0.85; }
+
+/* ── SELECT DE ORDENAÇÃO ── */
+.ordem-select {
+  background: var(--gray-800);
+  border: 1px solid var(--gray-600);
+  border-radius: var(--radius);
+  color: var(--gray-200);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 7px 12px;
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7a90'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.ordem-select:hover  { border-color: var(--gray-400); color: var(--white); }
+.ordem-select:focus  { border-color: var(--accent); }
+.ordem-select option { background: var(--gray-800); }

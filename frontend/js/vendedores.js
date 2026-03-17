@@ -1,4 +1,15 @@
 // ═══════════════════════════ VENDEDORES ═══════════════════════════
+let vendedoresOrdem = 'padrao';
+
+function ordenarVendedores(lista) {
+  return [...lista].sort((a, b) => {
+    if (vendedoresOrdem === 'az')    return a.nome.localeCompare(b.nome);
+    if (vendedoresOrdem === 'za')    return b.nome.localeCompare(a.nome);
+    if (vendedoresOrdem === 'cargo') return a.cargo.localeCompare(b.cargo);
+    return a.id - b.id;
+  });
+}
+
 async function carregarVendedores(busca='') {
   const url = busca ? `/vendedores/?nome=${encodeURIComponent(busca)}` : '/vendedores/';
   const res = await get(url);
@@ -7,7 +18,8 @@ async function carregarVendedores(busca='') {
     tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">🧑‍💼</div><p>Nenhum vendedor encontrado.</p></div></td></tr>`;
     return;
   }
-  tbody.innerHTML = res.data.map(v => `
+  const lista = ordenarVendedores(res.data);
+  tbody.innerHTML = lista.map(v => `
     <tr>
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${v.id}</span></td>
       <td>${v.nome}</td>
@@ -57,10 +69,8 @@ async function salvarVendedor() {
   const imgFile = document.getElementById('ven-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
   const res = id ? await put(`/vendedores/${id}`, fd) : await post('/vendedores/', fd);
-  if (res.ok) {
-    toast(id ? 'Vendedor atualizado!' : 'Vendedor cadastrado!', 'success');
-    closeModal('modal-vendedor'); carregarVendedores();
-  } else toast('Erro: ' + res.error, 'error');
+  if (res.ok) { toast(id ? 'Vendedor atualizado!' : 'Vendedor cadastrado!', 'success'); closeModal('modal-vendedor'); carregarVendedores(); }
+  else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarVendedor(id) {
@@ -89,6 +99,7 @@ async function removerVendedor(id, nome) {
 }
 
 document.getElementById('busca-vendedor').addEventListener('input', e => carregarVendedores(e.target.value));
+document.getElementById('ordem-vendedores').addEventListener('change', e => { vendedoresOrdem = e.target.value; carregarVendedores(document.getElementById('busca-vendedor').value); });
 setupImagePreview('ven-imagem', 'ven-img-preview');
 
 // ═══════════════════════════ DASHBOARD ═══════════════════════════
@@ -119,12 +130,12 @@ async function loadRelatorio() {
   }
   if (rPro.ok) {
     const d = rPro.data;
-    document.getElementById('rel-pro-total').textContent    = d.total_cadastrados;
-    document.getElementById('rel-pro-valor').textContent    = fmt(d.valor_total_estoque);
-    document.getElementById('rel-pro-semest').textContent   = d.sem_estoque;
-    document.getElementById('rel-pro-baixo').textContent    = d.estoque_baixo;
-    document.getElementById('rel-pro-mari').textContent     = d.fabricados_mari;
-    document.getElementById('rel-pro-critico').textContent  = d.produto_estoque_critico || '—';
+    document.getElementById('rel-pro-total').textContent   = d.total_cadastrados;
+    document.getElementById('rel-pro-valor').textContent   = fmt(d.valor_total_estoque);
+    document.getElementById('rel-pro-semest').textContent  = d.sem_estoque;
+    document.getElementById('rel-pro-baixo').textContent   = d.estoque_baixo;
+    document.getElementById('rel-pro-mari').textContent    = d.fabricados_mari;
+    document.getElementById('rel-pro-critico').textContent = d.produto_estoque_critico || '—';
     const catDiv = document.getElementById('rel-pro-cat');
     catDiv.innerHTML = Object.entries(d.por_categoria)
       .map(([k,v]) => `<div class="rel-row"><span>${k}</span><span class="rel-val">${v}</span></div>`)
@@ -132,12 +143,12 @@ async function loadRelatorio() {
   }
   if (rCar.ok) {
     const d = rCar.data;
-    document.getElementById('rel-car-total').textContent    = d.total_cadastrados;
-    document.getElementById('rel-car-disp').textContent     = d.disponiveis;
-    document.getElementById('rel-car-vend').textContent     = d.vendidos;
-    document.getElementById('rel-car-res').textContent      = d.reservados;
-    document.getElementById('rel-car-valor').textContent    = fmt(d.valor_estoque_disponivel);
-    document.getElementById('rel-car-top').textContent      = d.carro_mais_caro || '—';
+    document.getElementById('rel-car-total').textContent = d.total_cadastrados;
+    document.getElementById('rel-car-disp').textContent  = d.disponiveis;
+    document.getElementById('rel-car-vend').textContent  = d.vendidos;
+    document.getElementById('rel-car-res').textContent   = d.reservados;
+    document.getElementById('rel-car-valor').textContent = fmt(d.valor_estoque_disponivel);
+    document.getElementById('rel-car-top').textContent   = d.carro_mais_caro || '—';
   }
   if (rVen.ok) {
     const d = rVen.data;

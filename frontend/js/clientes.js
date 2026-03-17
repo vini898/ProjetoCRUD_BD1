@@ -1,4 +1,15 @@
 // ═══════════════════════════ CLIENTES ═══════════════════════════
+let clientesOrdem = 'padrao';
+
+function ordenarClientes(lista) {
+  return [...lista].sort((a, b) => {
+    if (clientesOrdem === 'az')       return a.nome.localeCompare(b.nome);
+    if (clientesOrdem === 'za')       return b.nome.localeCompare(a.nome);
+    if (clientesOrdem === 'cidade')   return (a.cidade||'').localeCompare(b.cidade||'');
+    if (clientesOrdem === 'desconto') return (b.tem_desconto ? 1 : 0) - (a.tem_desconto ? 1 : 0);
+    return a.id - b.id;
+  });
+}
 
 async function carregarClientes(busca='') {
   const url = busca ? `/clientes/?nome=${encodeURIComponent(busca)}` : '/clientes/';
@@ -8,7 +19,8 @@ async function carregarClientes(busca='') {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">👤</div><p>Nenhum cliente encontrado.</p></div></td></tr>`;
     return;
   }
-  tbody.innerHTML = res.data.map(c => `
+  const lista = ordenarClientes(res.data);
+  tbody.innerHTML = lista.map(c => `
     <tr>
       <td><span style="font-family:var(--font-mono);font-size:0.8rem;color:var(--gray-400)">#${c.id}</span></td>
       <td>${c.nome}</td>
@@ -50,9 +62,7 @@ async function visualizarCliente(id) {
           <div class="view-row"><span class="view-label">Email</span><span class="view-val">${c.email || '—'}</span></div>
           <div class="view-row"><span class="view-label">Cidade</span><span class="view-val">${c.cidade || '—'}</span></div>
           <div class="view-row"><span class="view-label">Desconto</span><span class="view-val">
-            ${c.tem_desconto
-              ? `<span class="badge badge-green">✓ 10% — ${descontos.join(', ')}</span>`
-              : '<span class="badge badge-gray">Sem desconto</span>'}
+            ${c.tem_desconto ? `<span class="badge badge-green">✓ 10% — ${descontos.join(', ')}</span>` : '<span class="badge badge-gray">Sem desconto</span>'}
           </span></div>
         </div>
       </div>
@@ -74,10 +84,8 @@ async function salvarCliente() {
   const imgFile = document.getElementById('cli-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
   const res = id ? await put(`/clientes/${id}`, fd) : await post('/clientes/', fd);
-  if (res.ok) {
-    toast(id ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
-    closeModal('modal-cliente'); carregarClientes();
-  } else toast('Erro: ' + res.error, 'error');
+  if (res.ok) { toast(id ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success'); closeModal('modal-cliente'); carregarClientes(); }
+  else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarCliente(id) {
@@ -110,4 +118,5 @@ async function removerCliente(id, nome) {
 }
 
 document.getElementById('busca-cliente').addEventListener('input', e => carregarClientes(e.target.value));
+document.getElementById('ordem-clientes').addEventListener('change', e => { clientesOrdem = e.target.value; carregarClientes(document.getElementById('busca-cliente').value); });
 setupImagePreview('cli-imagem', 'cli-img-preview');

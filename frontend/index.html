@@ -64,6 +64,13 @@
       <div class="section-title">Clientes</div>
       <div class="toolbar">
         <input id="busca-cliente" class="search-box" type="text" placeholder="Pesquisar por nome...">
+        <select id="ordem-clientes" class="ordem-select">
+          <option value="padrao">Ordenar: Padrão</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="cidade">Por cidade</option>
+          <option value="desconto">Com desconto primeiro</option>
+        </select>
         <button class="btn btn-primary" onclick="closeModal('modal-cliente');openModal('modal-cliente');document.getElementById('modal-cliente-title').textContent='NOVO CLIENTE'">+ Novo Cliente</button>
       </div>
       <div class="table-wrap">
@@ -90,6 +97,15 @@
         <input id="filtro-preco-max" class="form-input" type="number" min="0" placeholder="Preço máx." style="width:120px">
         <label class="form-check" style="white-space:nowrap"><input type="checkbox" id="filtro-mari"> Fabricado em Mari</label>
         <label class="form-check" style="white-space:nowrap"><input type="checkbox" id="filtro-baixo"> Estoque baixo</label>
+        <select id="ordem-produtos" class="ordem-select">
+          <option value="padrao">Ordenar: Padrão</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="caro">Mais caro</option>
+          <option value="barato">Mais barato</option>
+          <option value="estoque_maior">Maior estoque</option>
+          <option value="estoque_menor">Menor estoque</option>
+        </select>
       </div>
       <div class="table-wrap">
         <table>
@@ -104,6 +120,17 @@
       <div class="section-title">Veículos <span class="accent">/ Estoque</span></div>
       <div class="toolbar">
         <input id="busca-carro" class="search-box" type="text" placeholder="Pesquisar por marca ou modelo...">
+        <select id="ordem-carros" class="ordem-select">
+          <option value="padrao">Ordenar: Padrão</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="caro">Mais caro</option>
+          <option value="barato">Mais barato</option>
+          <option value="novo">Mais novo</option>
+          <option value="velho">Mais antigo</option>
+          <option value="km_menor">Menor km</option>
+          <option value="km_maior">Maior km</option>
+        </select>
         <div class="view-toggle">
           <button id="btn-view-grade"  class="btn active" onclick="toggleCarrosView('grade')">⊞ Grade</button>
           <button id="btn-view-tabela" class="btn"        onclick="toggleCarrosView('tabela')">☰ Tabela</button>
@@ -126,6 +153,12 @@
       <div class="section-title">Vendedores</div>
       <div class="toolbar">
         <input id="busca-vendedor" class="search-box" type="text" placeholder="Pesquisar por nome...">
+        <select id="ordem-vendedores" class="ordem-select">
+          <option value="padrao">Ordenar: Padrão</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="cargo">Por cargo</option>
+        </select>
         <button class="btn btn-primary" onclick="closeModal('modal-vendedor');openModal('modal-vendedor');document.getElementById('modal-vendedor-title').textContent='NOVO VENDEDOR'">+ Novo Vendedor</button>
       </div>
       <div class="table-wrap">

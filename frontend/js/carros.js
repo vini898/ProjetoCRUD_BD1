@@ -1,5 +1,6 @@
 // ═══════════════════════════ CARROS ═══════════════════════════
 let carrosViewMode = 'grade';
+let carrosOrdem = 'padrao';
 
 function toggleCarrosView(mode) {
   carrosViewMode = mode;
@@ -9,12 +10,26 @@ function toggleCarrosView(mode) {
   document.getElementById('carros-tabela').style.display = mode === 'tabela' ? 'block' : 'none';
 }
 
+function ordenarCarros(lista) {
+  const o = carrosOrdem;
+  return [...lista].sort((a, b) => {
+    if (o === 'az')       return (a.marca + ' ' + a.modelo).localeCompare(b.marca + ' ' + b.modelo);
+    if (o === 'za')       return (b.marca + ' ' + b.modelo).localeCompare(a.marca + ' ' + a.modelo);
+    if (o === 'caro')     return b.preco - a.preco;
+    if (o === 'barato')   return a.preco - b.preco;
+    if (o === 'novo')     return b.ano - a.ano;
+    if (o === 'velho')    return a.ano - b.ano;
+    if (o === 'km_menor') return a.quilometragem - b.quilometragem;
+    if (o === 'km_maior') return b.quilometragem - a.quilometragem;
+    return a.id - b.id;
+  });
+}
+
 function _statusBadge(status) {
   return { disponivel: '<span class="badge badge-green">Disponível</span>',
            vendido:    '<span class="badge badge-red">Vendido</span>',
            reservado:  '<span class="badge badge-gold">Reservado</span>' }[status] || status;
 }
-
 function _statusBtns(c) {
   const btns = [];
   if (c.status !== 'disponivel') btns.push(`<button class="btn btn-sm status-btn" style="color:var(--green);border:1px solid var(--green)" onclick="mudarStatusCarro(${c.id},'disponivel')">Disponível</button>`);
@@ -26,7 +41,7 @@ function _statusBtns(c) {
 async function carregarCarros(busca='') {
   const url = busca ? `/carros/?nome=${encodeURIComponent(busca)}` : '/carros/';
   const res = await get(url);
-  const carros = (res.ok && res.data.length) ? res.data : [];
+  const carros = ordenarCarros((res.ok && res.data.length) ? res.data : []);
 
   // Grade
   const grade = document.getElementById('carros-grade');
@@ -44,8 +59,9 @@ async function carregarCarros(busca='') {
           <div class="car-card-title">${c.marca} ${c.modelo}</div>
           <div class="car-card-sub">${c.ano} · ${c.cor || '—'} · <span class="badge badge-gray" style="font-size:0.65rem">${c.faixa_preco || ''}</span></div>
           <div class="car-card-price">${fmt(c.preco)}</div>
-          <div style="margin:6px 0">${_statusBadge(c.status)}</div>
-          <div class="td-actions" style="margin-top:4px;flex-wrap:wrap">${_statusBtns(c)}</div>
+          <div style="margin:6px 0 2px">${_statusBadge(c.status)}</div>
+          ${c.quilometragem ? `<div style="font-size:0.78rem;color:var(--gray-400);font-family:var(--font-mono)">${Number(c.quilometragem).toLocaleString('pt-BR')} km</div>` : ''}
+          <div class="td-actions" style="margin-top:6px;flex-wrap:wrap">${_statusBtns(c)}</div>
           <div class="td-actions" style="margin-top:6px">
             <button class="btn btn-edit btn-sm" onclick="editarCarro(${c.id})">Editar</button>
             <button class="btn btn-danger btn-sm" onclick="removerCarro(${c.id},'${c.marca} ${c.modelo}')">Remover</button>
@@ -73,12 +89,10 @@ async function carregarCarros(busca='') {
       <td style="font-family:var(--font-mono);color:var(--accent)">${fmt(c.preco)}</td>
       <td>${_statusBadge(c.status)}</td>
       <td><div class="td-actions" style="flex-wrap:wrap">${_statusBtns(c)}</div></td>
-      <td>
-        <div class="td-actions">
-          <button class="btn btn-edit btn-sm" onclick="editarCarro(${c.id})">Editar</button>
-          <button class="btn btn-danger btn-sm" onclick="removerCarro(${c.id},'${c.marca} ${c.modelo}')">Remover</button>
-        </div>
-      </td>
+      <td><div class="td-actions">
+        <button class="btn btn-edit btn-sm" onclick="editarCarro(${c.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="removerCarro(${c.id},'${c.marca} ${c.modelo}')">Remover</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -102,17 +116,13 @@ async function salvarCarro() {
     status: document.getElementById('car-status').value,
     descricao: document.getElementById('car-descricao').value.trim(),
   };
-  if (!campos.marca || !campos.modelo || !campos.preco) {
-    toast('Marca, modelo e preço são obrigatórios.', 'error'); return;
-  }
+  if (!campos.marca || !campos.modelo || !campos.preco) { toast('Marca, modelo e preço são obrigatórios.', 'error'); return; }
   Object.entries(campos).forEach(([k,v]) => fd.append(k, v));
   const imgFile = document.getElementById('car-imagem').files[0];
   if (imgFile) fd.append('imagem', imgFile);
   const res = id ? await put(`/carros/${id}`, fd) : await post('/carros/', fd);
-  if (res.ok) {
-    toast(id ? 'Veículo atualizado!' : 'Veículo cadastrado!', 'success');
-    closeModal('modal-carro'); carregarCarros();
-  } else toast('Erro: ' + res.error, 'error');
+  if (res.ok) { toast(id ? 'Veículo atualizado!' : 'Veículo cadastrado!', 'success'); closeModal('modal-carro'); carregarCarros(); }
+  else toast('Erro: ' + res.error, 'error');
 }
 
 async function editarCarro(id) {
@@ -145,4 +155,5 @@ async function removerCarro(id, nome) {
 }
 
 document.getElementById('busca-carro').addEventListener('input', e => carregarCarros(e.target.value));
+document.getElementById('ordem-carros').addEventListener('change', e => { carrosOrdem = e.target.value; carregarCarros(document.getElementById('busca-carro').value); });
 setupImagePreview('car-imagem', 'car-img-preview');
