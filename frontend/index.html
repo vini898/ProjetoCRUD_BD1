@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SpeedTech — Equipadora de Carros</title>
+  <title>Baiano Autos — Equipadora de Carros</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="header">
-  <div class="logo">⚙ SPEED<span>TECH</span></div>
+  <div class="logo">⬡ BAIANO<span>AUTOS</span></div>
   <span style="color:var(--gray-400);font-size:0.8rem;font-family:var(--font-mono)">EQUIPADORA DE CARROS</span>
 </header>
 
@@ -18,13 +18,13 @@
     <div class="sidebar-label">Painel</div>
     <button class="side-btn active" data-page="dashboard" onclick="showPage('dashboard')"><span class="icon">◈</span> Dashboard</button>
     <div class="sidebar-label" style="margin-top:1rem">Cadastros</div>
-    <button class="side-btn" data-page="clientes"   onclick="showPage('clientes');carregarClientes()"><span class="icon">👤</span> Clientes</button>
-    <button class="side-btn" data-page="produtos"   onclick="showPage('produtos');carregarProdutos()"><span class="icon">🔧</span> Produtos</button>
-    <button class="side-btn" data-page="carros"     onclick="showPage('carros');carregarCarros()"><span class="icon">🚗</span> Veículos</button>
-    <button class="side-btn" data-page="vendedores" onclick="showPage('vendedores');carregarVendedores()"><span class="icon">🧑‍💼</span> Vendedores</button>
-    <button class="side-btn" data-page="vendas" onclick="showPage('vendas');carregarVendas()"><span class="icon">🧾</span> Vendas</button>
+    <button class="side-btn" data-page="clientes"   onclick="showPage('clientes');carregarClientes()"><span class="icon">✦</span> Clientes</button>
+    <button class="side-btn" data-page="produtos"   onclick="showPage('produtos');carregarProdutos()"><span class="icon">⚙</span> Produtos</button>
+    <button class="side-btn" data-page="carros"     onclick="showPage('carros');carregarCarros()"><span class="icon">✇</span> Veículos</button>
+    <button class="side-btn" data-page="vendedores" onclick="showPage('vendedores');carregarVendedores()"><span class="icon">⊹</span> Vendedores</button>
+    <button class="side-btn" data-page="vendas" onclick="showPage('vendas');carregarVendas()"><span class="icon">⊞</span> Vendas</button>
     <div class="sidebar-label" style="margin-top:1rem">Relatórios</div>
-    <button class="side-btn" data-page="relatorio"  onclick="showPage('relatorio')"><span class="icon">📊</span> Relatório Geral</button>
+    <button class="side-btn" data-page="relatorio"  onclick="showPage('relatorio')"><span class="icon">◧</span> Relatório Geral</button>
   </nav>
 
   <main class="main">
@@ -87,11 +87,11 @@
       <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.75rem">Destaques do Mês</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div class="dash-card" style="--card-accent:var(--accent)">
-          <div class="card-label">🏆 Produto Mais Vendido</div>
+          <div class="card-label">◆ Produto Mais Vendido</div>
           <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--white);margin-top:4px" id="dash-produto-top">—</div>
         </div>
         <div class="dash-card" style="--card-accent:var(--green)">
-          <div class="card-label">⭐ Vendedor Destaque do Mês</div>
+          <div class="card-label">◈ Vendedor Destaque do Mês</div>
           <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--white);margin-top:4px" id="dash-vendedor-top">—</div>
         </div>
       </div>
@@ -171,7 +171,7 @@
         </select>
         <div class="view-toggle">
           <button id="btn-view-grade"  class="btn active" onclick="toggleCarrosView('grade')">⊞ Grade</button>
-          <button id="btn-view-tabela" class="btn"        onclick="toggleCarrosView('tabela')">☰ Tabela</button>
+          <button id="btn-view-tabela" class="btn"        onclick="toggleCarrosView('tabela')">≡ Tabela</button>
         </div>
         <button class="btn btn-primary" onclick="closeModal('modal-carro');openModal('modal-carro');document.getElementById('modal-carro-title').textContent='NOVO VEÍCULO'">+ Novo Veículo</button>
       </div>
@@ -266,7 +266,7 @@
 <!-- ══ MODAL CONFIRM ══ -->
 <div id="modal-confirm" class="modal-overlay">
   <div class="modal" style="max-width:380px;text-align:center">
-    <div style="font-size:2rem;margin-bottom:1rem">⚠️</div>
+    <div style="font-size:2rem;margin-bottom:1rem;color:var(--gold)">▲</div>
     <div class="modal-title" style="font-size:1.1rem;letter-spacing:0;font-family:var(--font-body)" id="confirm-msg">Tem certeza?</div>
     <div class="form-actions" style="justify-content:center;margin-top:1.5rem">
       <button class="btn btn-ghost" onclick="_confirmCancel()">Cancelar</button>
@@ -293,7 +293,7 @@
     <div class="form-group">
       <label class="form-label">Foto do cliente</label>
       <div class="img-upload-wrap">
-        <label class="img-upload-label"><span class="img-upload-icon">📷</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="cli-imagem" accept="image/*"></label>
+        <label class="img-upload-label"><span class="img-upload-icon">⊡</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="cli-imagem" accept="image/*"></label>
         <img id="cli-img-preview" class="img-preview" alt="Preview">
       </div>
     </div>
@@ -329,7 +329,7 @@
     <div class="form-group">
       <label class="form-label">Foto do produto</label>
       <div class="img-upload-wrap">
-        <label class="img-upload-label"><span class="img-upload-icon">📷</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="pro-imagem" accept="image/*"></label>
+        <label class="img-upload-label"><span class="img-upload-icon">⊡</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="pro-imagem" accept="image/*"></label>
         <img id="pro-img-preview" class="img-preview" alt="Preview">
       </div>
     </div>
@@ -363,7 +363,7 @@
     <div class="form-group">
       <label class="form-label">Foto do veículo</label>
       <div class="img-upload-wrap">
-        <label class="img-upload-label"><span class="img-upload-icon">📷</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="car-imagem" accept="image/*"></label>
+        <label class="img-upload-label"><span class="img-upload-icon">⊡</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="car-imagem" accept="image/*"></label>
         <img id="car-img-preview" class="img-preview" alt="Preview">
       </div>
     </div>
@@ -391,7 +391,7 @@
     <div class="form-group">
       <label class="form-label">Foto do vendedor</label>
       <div class="img-upload-wrap">
-        <label class="img-upload-label"><span class="img-upload-icon">📷</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="ven-imagem" accept="image/*"></label>
+        <label class="img-upload-label"><span class="img-upload-icon">⊡</span><span class="img-label-text">Escolher imagem...</span><input type="file" id="ven-imagem" accept="image/*"></label>
         <img id="ven-img-preview" class="img-preview" alt="Preview">
       </div>
     </div>
@@ -422,7 +422,7 @@
       <div class="form-group"><label class="form-label">Vendedor *</label><select id="venda-vendedor" class="form-select"><option value="">Selecione...</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Forma de Pagamento *</label><select id="venda-forma" class="form-select"><option value="dinheiro">💵 Dinheiro</option><option value="cartao">💳 Cartão</option><option value="pix">⚡ Pix</option><option value="boleto">📄 Boleto</option><option value="berries">🫐 Berries</option></select></div>
+      <div class="form-group"><label class="form-label">Forma de Pagamento *</label><select id="venda-forma" class="form-select"><option value="dinheiro">◈ Dinheiro</option><option value="cartao">▬ Cartão</option><option value="pix">⚡ Pix</option><option value="boleto">≡ Boleto</option><option value="berries">✦ Berries</option></select></div>
       <div class="form-group"><label class="form-label">Observação</label><input id="venda-obs" class="form-input" type="text" placeholder="Opcional..."></div>
     </div>
 
@@ -430,8 +430,8 @@
     <div style="margin:1rem 0 0.5rem;font-family:var(--font-mono);font-size:0.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray-400)">Adicionar Itens</div>
     <input type="hidden" id="item-tipo-atual" value="produto">
     <div style="display:flex;gap:6px;margin-bottom:0.75rem">
-      <button id="item-tipo-produto" class="btn btn-sm active" onclick="trocarTipoItem('produto')">🔧 Produto</button>
-      <button id="item-tipo-carro"   class="btn btn-sm"        onclick="trocarTipoItem('carro')">🚗 Veículo</button>
+      <button id="item-tipo-produto" class="btn btn-sm active" onclick="trocarTipoItem('produto')">⚙ Produto</button>
+      <button id="item-tipo-carro"   class="btn btn-sm"        onclick="trocarTipoItem('carro')">✇ Veículo</button>
     </div>
     <div id="row-item-produto" style="display:flex;gap:0.5rem;align-items:flex-end;margin-bottom:0.5rem">
       <div class="form-group" style="flex:1;margin:0"><select id="item-produto-sel" class="form-select"><option value="">Selecione produto...</option></select></div>
