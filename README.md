@@ -1,4 +1,4 @@
-# SpeedTech — Equipadora de Carros
+# BaianoAutos — Equipadora de Carros
 Sistema CRUD — Banco de Dados I (2022.2)
 
 ## Tecnologias
