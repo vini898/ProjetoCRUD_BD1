@@ -147,7 +147,7 @@ tbody td { padding: 11px 14px; font-size: 0.9rem; color: var(--gray-200); }
 .img-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: var(--radius); display: none; border: 1px solid var(--gray-600); }
 
 /* ── MODAL CARD VISUALIZAÇÃO ── */
-.modal-card-view { max-width: 420px; }
+.modal-card-view { max-width: 600px; width: 95%; }
 .view-card { display: flex; flex-direction: column; gap: 1.25rem; }
 .view-card-img-area { display: flex; justify-content: center; }
 .card-avatar-round { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gray-600); display: block; }
@@ -165,7 +165,8 @@ tbody td { padding: 11px 14px; font-size: 0.9rem; color: var(--gray-200); }
 /* ── RELATÓRIO ── */
 .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
 .rel-card { background: var(--gray-800); border: 1px solid var(--gray-700); border-radius: var(--radius-lg); padding: 1.25rem; }
-.rel-card h3 { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-400); margin-bottom: 1rem; }
+.rel-card-full { background: var(--gray-800); border: 1px solid var(--gray-700); border-radius: var(--radius-lg); padding: 1.25rem; }
+.rel-card h3, .rel-card-full h3 { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-400); margin-bottom: 1rem; }
 .rel-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--gray-700); font-size: 0.875rem; }
 .rel-row:last-child { border-bottom: none; }
 .rel-row .rel-val { font-family: var(--font-mono); color: var(--accent); font-weight: 500; }
@@ -288,3 +289,21 @@ tbody td { padding: 11px 14px; font-size: 0.9rem; color: var(--gray-200); }
   text-align: center;
   font-family: var(--font-mono);
 }
+
+/* ── CARDS DE PEDIDO ── */
+.pedido-card { background:var(--gray-700); border:1px solid var(--gray-600); border-radius:var(--radius-lg); margin-bottom:0.75rem; overflow:hidden; }
+.pedido-header { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--gray-800); border-bottom:1px solid var(--gray-600); flex-wrap:wrap; }
+.pedido-id { font-family:var(--font-mono); font-size:0.78rem; color:var(--gray-400); }
+.pedido-info { display:flex; gap:14px; padding:8px 14px; font-size:0.82rem; color:var(--gray-400); border-bottom:1px solid var(--gray-700); flex-wrap:wrap; align-items:center; }
+.pedido-itens { padding:8px 14px; }
+.pedido-item { display:flex; align-items:center; gap:8px; padding:5px 0; font-size:0.85rem; color:var(--gray-200); border-bottom:1px solid var(--gray-700); flex-wrap:wrap; }
+.pedido-item:last-child { border-bottom:none; }
+.pedido-cod { font-family:var(--font-mono); font-size:0.72rem; color:var(--accent); background:var(--gray-800); padding:1px 6px; border-radius:4px; }
+
+/* ── RELATÓRIO MENSAL — ranking vendedor ── */
+.rank-vendedor { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--gray-700); flex-wrap:wrap; gap:8px; }
+.rank-vendedor:last-child { border-bottom:none; }
+.rank-pos { font-family:var(--font-display); font-size:1.4rem; color:var(--gray-600); width:32px; text-align:center; }
+.rank-pos.gold   { color:var(--gold); }
+.rank-pos.silver { color:var(--gray-400); }
+.rank-pos.bronze { color:#cd7f32; }

@@ -75,3 +75,44 @@ Mesma estrutura de rotas acima.
 | /api/relatorio/produtos | Relatório de estoque |
 | /api/relatorio/carros | Relatório de veículos |
 | /api/relatorio/vendedores | Relatório de vendedores |
+
+<project_context>
+  <path>C:\Users\Jp\Documents\repositorio\ProjetoCRUD_BD1</path>
+
+  <structure>
+    backend
+      controllers
+        parte2_routes.py
+        routes.py
+        vendas_routes.py
+      instance
+        equipadora.db
+      models
+        carro.py
+        cliente.py
+        produto.py
+        venda.py
+        vendedor.py
+      services
+        relatorio_service.py
+      app.py
+      crud_manager.py
+      database.py
+      migrar.py
+      setup_banco.py
+    frontend
+      css
+        style.css
+      js
+        api.js
+        carros.js
+        clientes.js
+        produtos.js
+        vendas.js
+        vendedores.js
+      index.html
+    LICENSE
+    README.md
+    requirements.txt
+    uml_equipadora_carros.svg
+  </structure>

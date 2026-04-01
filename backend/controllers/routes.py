@@ -27,6 +27,20 @@ def salvar_imagem(file):
 
 def parse_bool(v): return str(v).lower() in ('true','1','on')
 
+def safe_float(v):
+    """Converte string para float aceitando vírgula ou ponto como separador."""
+    try:
+        return float(str(v).replace(',', '.').strip())
+    except (ValueError, TypeError):
+        return None
+
+def safe_int(v):
+    """Converte string para int com segurança."""
+    try:
+        return int(str(v).strip())
+    except (ValueError, TypeError):
+        return None
+
 def form_or_json():
     if request.content_type and 'multipart' in request.content_type:
         return dict(request.form)
@@ -143,8 +157,14 @@ def inserir_produto():
     d = form_or_json()
     dados = {k: d.get(k) for k in ['nome','categoria','preco','qtd_estoque','fabricado_mari','descricao'] if k in d}
     if 'fabricado_mari' in dados: dados['fabricado_mari'] = parse_bool(dados['fabricado_mari'])
-    if 'preco' in dados:       dados['preco']       = float(dados['preco'])
-    if 'qtd_estoque' in dados: dados['qtd_estoque'] = int(dados['qtd_estoque'])
+    if 'preco' in dados:
+        v = safe_float(dados['preco'])
+        if v is None: return err('Preço inválido.')
+        dados['preco'] = v
+    if 'qtd_estoque' in dados:
+        v = safe_int(dados['qtd_estoque'])
+        if v is None: return err('Quantidade inválida.')
+        dados['qtd_estoque'] = v
     if img: dados['imagem'] = img
     try:    return ok(mgr_pro.inserir(**dados).to_dict(), 201)
     except Exception as e: return err(str(e))
@@ -154,8 +174,12 @@ def alterar_produto(id):
     img = salvar_imagem(request.files.get('imagem'))
     d = form_or_json()
     if 'fabricado_mari' in d: d['fabricado_mari'] = parse_bool(d['fabricado_mari'])
-    if 'preco' in d:       d['preco']       = float(d['preco'])
-    if 'qtd_estoque' in d: d['qtd_estoque'] = int(d['qtd_estoque'])
+    if 'preco' in d:
+        v = safe_float(d['preco'])
+        if v is not None: d['preco'] = v
+    if 'qtd_estoque' in d:
+        v = safe_int(d['qtd_estoque'])
+        if v is not None: d['qtd_estoque'] = v
     if img: d['imagem'] = img
     p = mgr_pro.alterar(id, **d)
     return ok(p.to_dict()) if p else err('Produto não encontrado', 404)
@@ -184,9 +208,17 @@ def inserir_carro():
     img = salvar_imagem(request.files.get('imagem'))
     d = form_or_json()
     dados = {k: d.get(k) for k in ['marca','modelo','ano','cor','preco','quilometragem','status','descricao'] if k in d}
-    if 'ano' in dados:           dados['ano']           = int(dados['ano'])
-    if 'preco' in dados:         dados['preco']         = float(dados['preco'])
-    if 'quilometragem' in dados: dados['quilometragem'] = float(dados['quilometragem'])
+    if 'ano' in dados:
+        v = safe_int(dados['ano'])
+        if v is None: return err('Ano inválido.')
+        dados['ano'] = v
+    if 'preco' in dados:
+        v = safe_float(dados['preco'])
+        if v is None: return err('Preço inválido.')
+        dados['preco'] = v
+    if 'quilometragem' in dados:
+        v = safe_float(dados['quilometragem'])
+        dados['quilometragem'] = v if v is not None else 0.0
     if img: dados['imagem'] = img
     try:    return ok(mgr_car.inserir(**dados).to_dict(), 201)
     except Exception as e: return err(str(e))
@@ -195,9 +227,15 @@ def inserir_carro():
 def alterar_carro(id):
     img = salvar_imagem(request.files.get('imagem'))
     d = form_or_json()
-    if 'ano' in d:           d['ano']           = int(d['ano'])
-    if 'preco' in d:         d['preco']         = float(d['preco'])
-    if 'quilometragem' in d: d['quilometragem'] = float(d['quilometragem'])
+    if 'ano' in d:
+        v = safe_int(d['ano'])
+        if v is not None: d['ano'] = v
+    if 'preco' in d:
+        v = safe_float(d['preco'])
+        if v is not None: d['preco'] = v
+    if 'quilometragem' in d:
+        v = safe_float(d['quilometragem'])
+        if v is not None: d['quilometragem'] = v
     if img: d['imagem'] = img
     c = mgr_car.alterar(id, **d)
     return ok(c.to_dict()) if c else err('Carro não encontrado', 404)
@@ -286,3 +324,8 @@ def rel_produtos():  return ok(RelatorioService().relatorio_produtos())
 def rel_carros():    return ok(RelatorioService().relatorio_carros())
 @relatorio_bp.get('/vendedores')
 def rel_vendedores():return ok(RelatorioService().relatorio_vendedores())
+
+@relatorio_bp.get('/mensal')
+def rel_mensal():
+    ano_mes = request.args.get('ano_mes')
+    return ok(RelatorioService().relatorio_mensal_vendedor(ano_mes))

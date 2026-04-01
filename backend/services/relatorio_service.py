@@ -143,3 +143,39 @@ class RelatorioService:
             'vendedor_top_mes': top_vend[0] if top_vend else '—',
             'vendas_pendentes': pendentes,
         }
+
+    def relatorio_mensal_vendedor(self, ano_mes=None):
+        """Relatório mensal de vendas por vendedor usando a VIEW."""
+        from database import db
+        from sqlalchemy import text
+        try:
+            if ano_mes:
+                rows = db.session.execute(
+                    text("SELECT * FROM vw_relatorio_mensal_vendedor WHERE ano_mes = :am ORDER BY receita_liquida DESC"),
+                    {'am': ano_mes}
+                ).fetchall()
+            else:
+                # Mês atual
+                from datetime import date
+                ano_mes = date.today().strftime('%Y-%m')
+                rows = db.session.execute(
+                    text("SELECT * FROM vw_relatorio_mensal_vendedor WHERE ano_mes = :am ORDER BY receita_liquida DESC"),
+                    {'am': ano_mes}
+                ).fetchall()
+
+            cols = ['ano','mes','ano_mes','vendedor_id','vendedor_nome',
+                    'cargo','total_vendas','receita_liquida','ticket_medio']
+            dados = [dict(zip(cols, r)) for r in rows]
+            for d in dados:
+                d['receita_liquida'] = round(d['receita_liquida'] or 0, 2)
+                d['ticket_medio']    = round(d['ticket_medio'] or 0, 2)
+
+            return {
+                'tipo': 'relatorio_mensal',
+                'data': self.data_geracao,
+                'ano_mes': ano_mes,
+                'vendedores': dados,
+                'total_receita_mes': round(sum(d['receita_liquida'] for d in dados), 2),
+            }
+        except Exception as e:
+            return {'erro': str(e), 'dados': []}

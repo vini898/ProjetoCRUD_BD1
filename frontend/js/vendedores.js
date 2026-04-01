@@ -131,10 +131,15 @@ async function loadDashboard() {
 
 // ═══════════════════════════ RELATÓRIO ═══════════════════════════
 async function loadRelatorio() {
+  const mesAtual = new Date().toISOString().slice(0,7);
+  const inputMes = document.getElementById('filtro-mes-relatorio');
+  if (inputMes && !inputMes.value) inputMes.value = mesAtual;
+
   const [rCli, rPro, rCar, rVen] = await Promise.all([
     get('/relatorio/clientes'), get('/relatorio/produtos'),
     get('/relatorio/carros'),   get('/relatorio/vendedores'),
   ]);
+
   if (rCli.ok) {
     const d = rCli.data;
     document.getElementById('rel-cli-total').textContent       = d.total_cadastrados;
@@ -172,4 +177,46 @@ async function loadRelatorio() {
       .map(([k,v]) => `<div class="rel-row"><span>${k}</span><span class="rel-val">${v}</span></div>`)
       .join('') || '<span style="color:var(--gray-400)">—</span>';
   }
+
+  await atualizarRelatorioMensal(mesAtual);
+}
+
+async function atualizarRelatorioMensal(anoMes) {
+  if (!anoMes) anoMes = new Date().toISOString().slice(0,7);
+  const res = await get(`/relatorio/mensal?ano_mes=${anoMes}`);
+  const menDiv  = document.getElementById('rel-mensal-vendedores');
+  const totalEl = document.getElementById('rel-mensal-total');
+  const mesEl   = document.getElementById('rel-mensal-mes');
+
+  if (!res.ok) {
+    menDiv.innerHTML = '<span style="color:var(--red)">Erro ao carregar. Rode setup_banco.py primeiro.</span>';
+    return;
+  }
+
+  const d = res.data;
+  if (mesEl)   mesEl.textContent   = d.ano_mes || anoMes;
+  if (totalEl) totalEl.textContent = fmt(d.total_receita_mes || 0);
+
+  if (!d.vendedores || d.vendedores.length === 0) {
+    menDiv.innerHTML = '<div class="empty" style="padding:1.5rem 0"><p>Nenhuma venda confirmada neste mês.</p></div>';
+    return;
+  }
+
+  const posClass = i => ['gold','silver','bronze'][i] || '';
+  const posLabel = i => ['◆','◈','◉'][i] || `${i+1}`;
+
+  menDiv.innerHTML = d.vendedores.map((v, i) => `
+    <div class="rank-vendedor">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span class="rank-pos ${posClass(i)}">${posLabel(i)}</span>
+        <div>
+          <div style="font-weight:500;color:var(--white)">${v.vendedor_nome}</div>
+          <div style="font-size:0.78rem;color:var(--gray-400)">${v.cargo} · ${v.total_vendas} venda(s)</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-mono);color:var(--accent);font-weight:500">${fmt(v.receita_liquida)}</div>
+        <div style="font-size:0.75rem;color:var(--gray-400)">ticket médio ${fmt(v.ticket_medio)}</div>
+      </div>
+    </div>`).join('');
 }

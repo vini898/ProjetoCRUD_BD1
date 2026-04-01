@@ -243,6 +243,22 @@
           <div class="rel-row"><span>Veículo mais caro</span><span class="rel-val" id="rel-car-top">—</span></div>
         </div>
       </div>
+
+      <!-- Relatório Mensal por Vendedor (Parte 2) -->
+      <div class="rel-card rel-card-full" style="margin-top:1rem">
+        <h3 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span>◧ Relatório Mensal por Vendedor</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input id="filtro-mes-relatorio" type="month" class="form-input" style="width:160px;padding:5px 10px;font-size:0.82rem" onchange="atualizarRelatorioMensal(this.value)">
+            <span style="font-family:var(--font-mono);color:var(--accent);font-size:0.85rem" id="rel-mensal-mes">—</span>
+          </div>
+        </h3>
+        <div class="rel-row" style="margin-bottom:0.75rem">
+          <span style="font-weight:500">Receita total do mês</span>
+          <span class="rel-val" style="font-size:1.1rem" id="rel-mensal-total">—</span>
+        </div>
+        <div id="rel-mensal-vendedores"></div>
+      </div>
     </div>
 
       <!-- VENDAS -->
@@ -404,7 +420,7 @@
 
 <!-- ══ MODAL CARD VISUALIZAÇÃO ══ -->
 <div id="modal-card-view" class="modal-overlay">
-  <div class="modal modal-card-view">
+  <div class="modal modal-card-view" style="max-width:600px;width:95%">
     <button class="modal-close" onclick="fecharCardVisualizacao()">✕</button>
     <div id="card-view-body"></div>
   </div>
