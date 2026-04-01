@@ -148,23 +148,32 @@ class RelatorioService:
         """Relatório mensal de vendas por vendedor usando a VIEW."""
         from database import db
         from sqlalchemy import text
-        try:
-            if ano_mes:
-                rows = db.session.execute(
-                    text("SELECT * FROM vw_relatorio_mensal_vendedor WHERE ano_mes = :am ORDER BY receita_liquida DESC"),
-                    {'am': ano_mes}
-                ).fetchall()
-            else:
-                # Mês atual
-                from datetime import date
-                ano_mes = date.today().strftime('%Y-%m')
-                rows = db.session.execute(
-                    text("SELECT * FROM vw_relatorio_mensal_vendedor WHERE ano_mes = :am ORDER BY receita_liquida DESC"),
-                    {'am': ano_mes}
-                ).fetchall()
 
-            cols = ['ano','mes','ano_mes','vendedor_id','vendedor_nome',
-                    'cargo','total_vendas','receita_liquida','ticket_medio']
+        if not ano_mes:
+            from datetime import date
+            ano_mes = date.today().strftime('%Y-%m')
+
+        # Verifica se a view existe antes de consultar
+        try:
+            db.session.execute(text("SELECT 1 FROM vw_relatorio_mensal_vendedor LIMIT 1"))
+        except Exception:
+            return {
+                'tipo': 'relatorio_mensal',
+                'data': self.data_geracao,
+                'ano_mes': ano_mes,
+                'vendedores': [],
+                'total_receita_mes': 0,
+                'aviso': 'VIEW não encontrada. Execute setup_banco.py para criá-la.',
+            }
+
+        try:
+            rows = db.session.execute(
+                text("SELECT * FROM vw_relatorio_mensal_vendedor WHERE ano_mes = :am ORDER BY receita_liquida DESC"),
+                {'am': ano_mes}
+            ).fetchall()
+
+            cols = ['ano', 'mes', 'ano_mes', 'vendedor_id', 'vendedor_nome',
+                    'cargo', 'total_vendas', 'receita_liquida', 'ticket_medio']
             dados = [dict(zip(cols, r)) for r in rows]
             for d in dados:
                 d['receita_liquida'] = round(d['receita_liquida'] or 0, 2)
@@ -178,4 +187,11 @@ class RelatorioService:
                 'total_receita_mes': round(sum(d['receita_liquida'] for d in dados), 2),
             }
         except Exception as e:
-            return {'erro': str(e), 'dados': []}
+            return {
+                'tipo': 'relatorio_mensal',
+                'data': self.data_geracao,
+                'ano_mes': ano_mes,
+                'vendedores': [],
+                'total_receita_mes': 0,
+                'aviso': f'Erro ao consultar relatório: {str(e)}',
+            }

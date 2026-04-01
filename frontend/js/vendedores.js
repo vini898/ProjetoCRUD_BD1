@@ -197,6 +197,14 @@ async function atualizarRelatorioMensal(anoMes) {
   if (mesEl)   mesEl.textContent   = d.ano_mes || anoMes;
   if (totalEl) totalEl.textContent = fmt(d.total_receita_mes || 0);
 
+  // Mostra aviso se a view não existir ou houver erro no banco
+  if (d.aviso) {
+    menDiv.innerHTML = `<div style="padding:1rem;background:rgba(230,80,80,0.1);border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:0.9rem">
+      ⚠️ ${d.aviso}
+    </div>`;
+    return;
+  }
+
   if (!d.vendedores || d.vendedores.length === 0) {
     menDiv.innerHTML = '<div class="empty" style="padding:1.5rem 0"><p>Nenhuma venda confirmada neste mês.</p></div>';
     return;
